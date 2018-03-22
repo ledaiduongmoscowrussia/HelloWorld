@@ -42,12 +42,11 @@ pip install --upgrade pip virtualenv
 # git requires $HOME and it's not set during the startup script.
 export HOME=/root
 git config --global credential.helper gcloud.sh
-git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld/opt/app
-
+git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
 
 # Install app dependencies
-virtualenv /opt/app/7-gce/env
-/opt/app/7-gce/env/bin/pip install -r /opt/app/7-gce/requirements.txt
+virtualenv /opt/app/HelloWorld/env
+/opt/app/HelloWorld/env/bin/pip install -r /opt/app/HelloWorld/requirements.txt
 
 # Make sure the pythonapp user owns the application code
 chown -R pythonapp:pythonapp /opt/app
@@ -56,14 +55,14 @@ chown -R pythonapp:pythonapp /opt/app
 # application.
 cat >/etc/supervisor/conf.d/python-app.conf << EOF
 [program:pythonapp]
-directory=/opt/app/7-gce
-command=/opt/app/7-gce/env/bin/gunicorn main:app --bind 0.0.0.0:8080
+directory=/opt/app/HelloWorld
+command=/opt/app/HelloWorld/env/bin/gunicorn main:app --bind 0.0.0.0:8080
 autostart=true
 autorestart=true
 user=pythonapp
 # Environment variables ensure that the application runs inside of the
 # configured virtualenv.
-environment=VIRTUAL_ENV="/opt/app/env/7-gce",PATH="/opt/app/7-gce/env/bin",\
+environment=VIRTUAL_ENV="/opt/app/env/HelloWorld",PATH="/opt/app/HelloWorld/env/bin",\
     HOME="/home/pythonapp",USER="pythonapp"
 stdout_logfile=syslog
 stderr_logfile=syslog
