@@ -38,6 +38,7 @@ useradd -m -d /home/pythonapp pythonapp
 # Get the source code from the Google Cloud Repository
 # git requires $HOME and it's not set during the startup script.
 export HOME=/root
+rm -r /opt/app
 git config --global credential.helper gcloud.sh
 git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
 
