@@ -2,9 +2,6 @@ import numpy as np
 import pandas as pd
 import warnings;warnings.filterwarnings('ignore')
 from Dataset import *
-from sqlalchemy import create_engine
-
-# engine = create_engine('mysql+mysqldb://ledaiduongvnth:leduysao290893@ledaiduongvnth.mysql.pythonanywhere-services.com/ledaiduongvnth$CheckScoreTin', pool_recycle=280)
 
 class SubFunctions:
     def __init__(self):pass
