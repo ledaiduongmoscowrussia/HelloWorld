@@ -45,8 +45,8 @@ git config --global credential.helper gcloud.sh
 git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
 
 # Install app dependencies
-virtualenv /opt/app/HelloWorld/env
-/opt/app/HelloWorld/env/bin/pip install -r /opt/app/HelloWorld/requirements.txt
+virtualenv -p python3 /opt/app/CheckScoreTin/env
+/opt/app/CheckScoreTin/env/bin/pip install -r /opt/app/CheckScoreTin/requirements.txt
 
 # Make sure the pythonapp user owns the application code
 chown -R pythonapp:pythonapp /opt/app
@@ -55,14 +55,14 @@ chown -R pythonapp:pythonapp /opt/app
 # application.
 cat >/etc/supervisor/conf.d/python-app.conf << EOF
 [program:pythonapp]
-directory=/opt/app/HelloWorld
-command=/opt/app/HelloWorld/env/bin/gunicorn main:app --bind 0.0.0.0:8080
+directory=/opt/app/CheckScoreTin
+command=/opt/app/CheckScoreTin/env/bin/gunicorn main:app --bind 0.0.0.0:8080
 autostart=true
 autorestart=true
 user=pythonapp
 # Environment variables ensure that the application runs inside of the
 # configured virtualenv.
-environment=VIRTUAL_ENV="/opt/app/env/HelloWorld",PATH="/opt/app/HelloWorld/env/bin",\
+environment=VIRTUAL_ENV="/opt/app/env/CheckScoreTin",PATH="/opt/app/CheckScoreTin/env/bin",\
     HOME="/home/pythonapp",USER="pythonapp"
 stdout_logfile=syslog
 stderr_logfile=syslog
