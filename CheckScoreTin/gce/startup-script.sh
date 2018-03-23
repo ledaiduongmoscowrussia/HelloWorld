@@ -59,7 +59,7 @@ chown -R pythonapp:pythonapp /opt/app
 cat >/etc/supervisor/conf.d/python-app.conf << EOF
 [program:pythonapp]
 directory=/opt/app/CheckScoreTin
-command=/opt/app/CheckScoreTin/env/bin/gunicorn main:app --bind 0.0.0.0:8080
+command=/opt/app/CheckScoreTin/env/bin/gunicorn main:server --bind 0.0.0.0:8080
 autostart=true
 autorestart=true
 user=pythonapp
