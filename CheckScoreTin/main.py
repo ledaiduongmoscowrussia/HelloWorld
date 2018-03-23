@@ -91,9 +91,8 @@ def CategorizeQuestions(subject, state_teacher, k_neighbors ):
     obj = GetTeacherObject(subject)
     try:
         df_result = obj.CategorizeQuestions(state_teacher, k_neighbors )
-    except(LookupError):
-        import nltk
-        nltk.download('all')
+    except():
+        pass
     return df_result.to_dict('records')
 
 @app.callback(  Output('status_teacher', 'children'),[Input('submit_button_teacher', 'n_clicks'), Input('table_teacher', 'rows')],
