@@ -35,6 +35,9 @@ apt-get install -yq \
 # Create a pythonapp user. The application will run as this user.
 useradd -m -d /home/pythonapp pythonapp
 
+# pip from apt is out of date, so make it update itself and install virtualenv.
+pip install --upgrade pip virtualenv
+
 # Get the source code from the Google Cloud Repository
 # git requires $HOME and it's not set during the startup script.
 export HOME=/root
