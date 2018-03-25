@@ -67,8 +67,3 @@ Subjects = ['English', 'Math','Physics']
 Algorithm = ['K nearest neighbor', 'Support vector machine', 'Tree decision']
 Options = ['A', 'B', 'C', 'D']
 
-
-
-
-
-
