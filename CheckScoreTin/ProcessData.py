@@ -114,7 +114,7 @@ class EnglishTeacher(Teacher):
         return df_result
 
 
-class EnglishStudent(Student, Subject):
+class EnglishStudent(Student):
     def __init__(self):
         self.tab = 'English student'
         self.number_rows_of_own_one_test = 1
@@ -126,15 +126,6 @@ class EnglishStudent(Student, Subject):
         Student.__init__(self, file_raw_data= self.file_raw_data_student, tab= self.tab,
                          number_rows_of_own_one_test= self.number_rows_of_own_one_test,
                          number_questions_of_subject= self.number_questions_of_subject)
-        Subject.__init__(self, file_preprocessed_data=self.file_preprocessed_data,
-                         file_raw_data_student= self.file_raw_data_student,
-                         file_raw_data_teacher= self.file_raw_data_teacher,
-                         number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 class MathTeacher(Teacher):
     def __init__(self):
@@ -148,6 +139,7 @@ class MathTeacher(Teacher):
                          self.number_rows_of_own_one_test,
                          categories_of_subject= self.categories_of_subject,
                          number_questions_of_subject= self.number_questions_of_subject)
+
     def UpdateRawDataForObject(self, list_options, categories):
         if self.UpdateRawDataForClass(list_options, categories) == 'Status: Anwers form is wrong, you need to repair your anwers':
             return 'Status: Anwers form is wrong, you need to repair your anwers'
@@ -157,7 +149,7 @@ class MathTeacher(Teacher):
         df_result = self.ReadDataFrameFromMySQL('MathIntermediateData')
         return df_result
 
-class MathStudent(Student, Subject):
+class MathStudent(Student):
     def __init__(self):
         self.tab = 'Math student'
         self.number_rows_of_own_one_test = 1
@@ -169,15 +161,6 @@ class MathStudent(Student, Subject):
         Student.__init__(self, file_raw_data= self.file_raw_data_student, tab= self.tab,
                           number_rows_of_own_one_test= self.number_rows_of_own_one_test,
                          number_questions_of_subject= self.number_questions_of_subject)
-        Subject.__init__(self, file_preprocessed_data=self.file_preprocessed_data,
-                         file_raw_data_student= self.file_raw_data_student,
-                         file_raw_data_teacher= self.file_raw_data_teacher,
-                         number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 class PhysicsTeacher(Teacher):
     def __init__(self):
@@ -200,7 +183,7 @@ class PhysicsTeacher(Teacher):
         df_result = self.ReadDataFrameFromMySQL('PhysicsIntermediateData')
         return df_result
 
-class PhysicsStudent(Student, Subject):
+class PhysicsStudent(Student):
     def __init__(self):
         self.tab = 'Physics student'
         self.number_rows_of_own_one_test = 1
@@ -212,15 +195,6 @@ class PhysicsStudent(Student, Subject):
         Student.__init__(self, file_raw_data= self.file_raw_data_student, tab= self.tab,
                          number_rows_of_own_one_test= self.number_rows_of_own_one_test,
                          number_questions_of_subject= self.number_questions_of_subject)
-        Subject.__init__(self, file_preprocessed_data=self.file_preprocessed_data,
-                         file_raw_data_student= self.file_raw_data_student,
-                         file_raw_data_teacher= self.file_raw_data_teacher,
-                         number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 
 

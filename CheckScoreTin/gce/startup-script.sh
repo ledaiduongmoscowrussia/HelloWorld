@@ -26,36 +26,32 @@ curl -s "https://storage.googleapis.com/signals-agents/logging/google-fluentd-in
 service google-fluentd restart &
 # [END logging]
 
-# Install dependencies from apt
+##................................ Install dependencies from apt
 apt-get update
 apt-get install -yq \
-    git build-essential supervisor python python-dev python-pip libffi-dev \
+    git build-essential supervisor python python-dev python3 python3-dev python-pip libffi-dev \
     libssl-dev
 
 # Create a pythonapp user. The application will run as this user.
 useradd -m -d /home/pythonapp pythonapp
-
-# pip from apt is out of date, so make it update itself and install virtualenv.
+##................................ pip from apt is out of date, so make it update itself and install virtualenv.
 pip install --upgrade pip virtualenv
-
-# Get the source code from the Google Cloud Repository
-# git requires $HOME and it's not set during the startup script.
 export HOME=/root
+#................................
 rm -r /opt/app
 git config --global credential.helper gcloud.sh
+#................................
 git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
 
 #................................ Install app dependencies
 virtualenv -p python3 /opt/app/CheckScoreTin/env
 #................................ pip from apt is out of date, so make it update itself and install virtualenv.
-/opt/app/CheckScoreTin/env/bin/pip install --upgrade pip
+/opt/app/CheckScoreTin/env/bin/pip install --upgrade pip pandas-gbq google-cloud google-auth google-auth-oauthlib 
+#................................
 /opt/app/CheckScoreTin/env/bin/pip install -r /opt/app/CheckScoreTin/requirements.txt
 
-# Make sure the pythonapp user owns the application code
+##................................ Make sure the pythonapp user owns the application code
 chown -R pythonapp:pythonapp /opt/app
-
-# Configure supervisor to start gunicorn inside of our virtualenv and run the
-# application.
 cat >/etc/supervisor/conf.d/python-app.conf << EOF
 [program:pythonapp]
 directory=/opt/app/CheckScoreTin
@@ -70,9 +66,6 @@ environment=VIRTUAL_ENV="/opt/app/env/CheckScoreTin",PATH="/opt/app/CheckScoreTi
 stdout_logfile=syslog
 stderr_logfile=syslog
 EOF
-
 supervisorctl reread
 supervisorctl update
-
-# Application should now be running under supervisor
 # [END startup]
