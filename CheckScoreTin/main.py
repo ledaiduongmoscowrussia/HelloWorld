@@ -106,7 +106,7 @@ def UpdateDataToDatabase(n_clicks, rows, subject, test_number, complete_confirm)
 def GetState(subject):
     try:
         obj = GetStudentObject(subject)
-        number_done_test_your = obj.GetNumberOfDoneTests(obj.file_raw_data_student, obj.number_rows_of_own_one_test)
+        number_done_test_your = obj.GetNumberOfDoneTests(obj.file_raw_data_student)
     except (AttributeError):
         return 'You need to select subject in above dropdown'
     return 'You are doing test No ' + str(number_done_test_your + 1)
