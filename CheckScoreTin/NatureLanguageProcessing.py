@@ -3,8 +3,7 @@ import pandas as pd
 import ast
 from nltk import word_tokenize, pos_tag
 from Dataset import *
-from SubFunctions import *
-from TextPreprocessingFunctionalStyle import *
+from TextPreprocessing import *
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm
 import functools

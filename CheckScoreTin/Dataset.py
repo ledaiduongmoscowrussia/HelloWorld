@@ -1,20 +1,5 @@
 from sklearn.preprocessing import LabelEncoder
 
-
-regime = 1
-
-if regime == 3 :
-    import sshtunnel
-    sshtunnel.SSH_TIMEOUT = 5.0
-    sshtunnel.TUNNEL_TIMEOUT = 5.0
-    ssh = ('ssh.pythonanywhere.com');
-    un = 'ledaiduongvnth';
-    pwd = 'leduysao290893';
-    lcad = ('localhost', 3333);
-    rmad = ('ledaiduongvnth.mysql.pythonanywhere-services.com', 3306)
-
-
-
 # English
 EnglishCategory = ['Pronunciation', 'Stress',
                    'Noun', 'Adjective_Adverb','Conjunction', 'Articles_a_an_the',  'Prepositions', 'Phrasal_verb', 'Verb',

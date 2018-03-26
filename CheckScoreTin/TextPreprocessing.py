@@ -2,83 +2,88 @@ from nltk.tokenize import sent_tokenize
 import pandas as pd
 import json
 import numpy as np
+from pprint import pprint
+from functools import *
+from itertools import *
 
-def DeleteWhiteSpace(str):
-    for i in str:
-        if i == ' ': str = str[1:]
-        else: break
-    str = str[::-1]
-    for i in str:
-        if i == ' ': str = str[1:]
-        else: break
-    str = str[::-1]
+def iterate(f, x):
+  # Return [ x, f(x), f(f(x)), ...]
+  # Input : f is a function with single argument that you want to iterate, x is initial value of argument
+  # Output: sequence of x, f(x), f(f(x))
+  return accumulate(repeat(x), lambda fx, _: f(fx))
+
+def ConditionToStopIterationForSearchString(prev, curr):
+    # Interrupt Iterations when condition is happenning, more specificly when current value = -1
+    # Input: prev is previous value, curr is current value, they can be given by fuctions 'repeat' or 'iterate'
+    # Output: return current value
+    if curr == -1: raise StopIteration
+    else: return curr
+
+def DeleteWhiteSpaceInFrontAndBack(str):
+    # This function use to delete white space in front and in back of a list string
+    # Input : str = '    In put    '
+    # Out put : str = 'In put'
+    not_white_space = [i for i in str if i != ' ']
+    if len(not_white_space) != 0: str = str[str.find(not_white_space[0]) : str.rfind(not_white_space[-1]) + 1]
     return str
+
 def DeleteListCharacterFromString(str, list_character):
-    for character in list_character:
-        str = str.replace(character, '')
+    # Delete specific character from a string
+    # Input: str = string, list_character = [ ',', '.' ]
+    # Output: str is string with out deleted strings
+    for character in list_character: str = str.replace(character, '')
     return str
-def GetSubTextsInsighDelimitersToList(doc_str, list_delimiters,jump_value = 1,
-                                get_head = True, get_tail = True):
-    def GetListIndexOfDelimiters(doc_str, list_delimiters):
-        def SearchForADelimiter(delimiter):
-            list_index = []
-            poiter = 0
-            while (True):
-                poiter = doc_str.find(delimiter, poiter + jump_value)
-                if poiter != -1:
-                    list_index.append(poiter)
-                else:
-                    break
-            return list_index
-        list_index = []
-        for delimiter in list_delimiters:
-            list_index = list_index + SearchForADelimiter(delimiter)
-        list_index.append(0)
-        list_index.append(len(doc_str))
-        list_index.sort()
-        return list_index
-    list_index = GetListIndexOfDelimiters(doc_str, list_delimiters)
-    list_index_forwards = list_index.copy()
-    list_index_forwards.pop(0)
-    list_index.pop(-1)
-    list_sub_text = []
-    for index, index_forward in zip(list_index, list_index_forwards):
-        list_sub_text.append(doc_str[index:index_forward])
-    if get_head == False:
-        list_sub_text.pop(0)
-    if get_tail == False:
-        list_sub_text.pop(-1)
+
+def FindSingleIndexOfString(str, delimeter, start_index):
+    # Find index of string
+    # Input: str is string you want to search in, delimeter is what do you want to search,
+    # start_index is from where do you want to search
+    # Output : index of string you want to search
+    return str.find(delimeter, start_index + 1)
+
+def FindListIndexOfString(str, delimeter):
+    # Return list of indexs that consist the positions of delimeter, that includes the inatial index 0
+    # Input: str is tring, delimeter is what do you want to search
+    # Output: list of strings includes inatial value 0, for example delimeter has index 3, output will be [0, 3]
+    return list(accumulate(iterate(partial(FindSingleIndexOfString, str, delimeter), 0), ConditionToStopIterationForSearchString))
+
+def GetSubTextsInsighDelimitersToList(doc_str, list_delimiters, get_head = True, get_tail = True):
+    list_indexs = sorted(list(set([i for k in [FindListIndexOfString(doc_str, delimeter) for delimeter in list_delimiters] for i in k ])) + [len(doc_str)])
+    list_sub_text = [doc_str[list_indexs[i] : list_indexs[i+1]] for i in range(len(list_indexs) - 1)]
+    if get_head == False: list_sub_text.pop(0)
+    if get_tail == False: list_sub_text.pop(-1)
     return list_sub_text
+
 def ProcessAExercise(Exercises):
     list_questions = GetSubTextsInsighDelimitersToList(Exercises,['Question'])
-    header1 = DeleteWhiteSpace(DeleteListCharacterFromString(sent_tokenize(list_questions.pop(0).replace('\n', ' '), language='english')[0], ['\t'])).lower()
-    def UniformAQuestion(question, header1):
-        list_options = [DeleteWhiteSpace(DeleteListCharacterFromString(option.replace('\n', ' ').replace('/', ' ').replace('-', ' ').replace("’", "'"),
-                                                                       ['\t', 'A.', 'B.', 'C.', 'D.', '(', ')', '.', ',', '?', '!', ';'] + list('1234567890'))).lower()
+    header1_header11 = sent_tokenize(list_questions.pop(0).replace('\n', ' '))
+    header1 = DeleteWhiteSpaceInFrontAndBack(DeleteListCharacterFromString(header1_header11.pop(0), ['\t'])).lower()
+    header11 = header1_header11
+    def UniformAQuestion(question, header1, header11):
+        list_options = [DeleteWhiteSpaceInFrontAndBack(DeleteListCharacterFromString(option.replace('\n', ' ').replace('/', ' ').replace('-', ' ').replace("’", "'"), ['\t', 'A.', 'B.', 'C.', 'D.', '(', ')', '.', ',', '?', '!', ';'] + list('1234567890'))).lower()
                         for option in GetSubTextsInsighDelimitersToList(question, ['A.', 'B.', 'C.', 'D.'])]
-        header2 = DeleteWhiteSpace(DeleteListCharacterFromString(list_options.pop(0).replace('\n', ' '), list('1234567890') +['\t', 'question', ':'])).lower()
-        dict_questions = {'header1': header1,
-                         'header2': header2,
-                         'options': list_options}
+        header2 = DeleteWhiteSpaceInFrontAndBack(DeleteListCharacterFromString(list_options.pop(0).replace('\n', ' '), list('1234567890') +['\t', 'question', ':'])).lower()
+        dict_questions = {'header1': header1,'header11': header11,'header2': header2, 'options': list_options}
         return dict_questions
-    list_uniformed_questions = []
-    for question in list_questions:
-        list_uniformed_questions.append(UniformAQuestion(question, header1))
+    list_uniformed_questions = [UniformAQuestion(question, header1, header11) for question in list_questions]
     return list_uniformed_questions
-def ExtractATestToDictionary(doc, list_delimiters_0, get_head=True, get_tail=True):
-    list_exercises = GetSubTextsInsighDelimitersToList(doc, list_delimiters_0, get_head=get_head, get_tail=get_tail)
+
+def ExtractATestToDictionary(text_exam, Answers, list_delimiters_0, test_number, get_head=True, get_tail=True):
+    list_exercises = GetSubTextsInsighDelimitersToList(text_exam, list_delimiters_0, get_head=get_head, get_tail=get_tail)
     list_total_questions = []
-    for exercices in list_exercises:
-        list_total_questions = list_total_questions + ProcessAExercise(exercices)
+    for exercices in list_exercises: list_total_questions = list_total_questions + ProcessAExercise(exercices)
     dict_a_test = {}
-    for i, question in list(enumerate(list_total_questions)):
-        dict_a_test['question'+str(i+1)] = question
+    for i, question in list(enumerate(list_total_questions)): dict_a_test['question'+str(i+1)] = question
+    dict_a_test['test_number'] = test_number
+    dict_a_test['Answers'] = Answers
     return dict_a_test
+
 def ConvertADictionaryToDataFrame(dict_a_test):
     list_all_questions = [dict_a_test['question' + str(i+1)] for i in range(0, 50)]
     index_data_frame = ['question' + str(i+1) for i in range(0, 50)]
     df = pd.DataFrame(list_all_questions, index=index_data_frame)
     return df
+
 def ExtractAnswersFromText(Text):
     options = [x for x in Text if x in ['A', 'B', 'C', 'D']]
     return options

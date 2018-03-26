@@ -8,12 +8,11 @@ from flask import Flask
 print(dcc.__version__) # 0.6.0 or above is required
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server)
-
-app.config.suppress_callback_exceptions = True
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page_content'),
     html.Div(dt.DataTable(rows=[{}]), style={'display': 'none'})])
+
 # Update the homepage
 @app.callback(Output('page_content', 'children'),
               [Input('url', 'pathname')])
@@ -22,6 +21,7 @@ def display_page(pathname):
         return layout_teacher
     else:
         return layout_student
+
 # # You could also return a 404 "URL not found" page here
 # app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
 #
@@ -70,6 +70,8 @@ def display_page(pathname):
 # //////////////////////////////////////////////////////////////////CallBack for teacher page//////////////////////////////////////////////////////////////////////
 
 # Give user the his or her state to fill number of next test
+
+
 @app.callback(Output('state_teacher', 'children'),[Input('subject_teacher', 'value')])
 def GetState(subject):
     try:
@@ -78,6 +80,7 @@ def GetState(subject):
     except (KeyError, AttributeError):
         return 'You need to select subject in above dropdown'
     return 'You are doing test No ' + str(number_done_test_your + 1)
+
 
 @app.callback(Output('table_teacher', 'rows'), [Input('subject_teacher', 'value'), Input('state_teacher', 'children'), Input('K_neighbors_teacher', 'value')])
 def CategorizeQuestions(subject, state_teacher, k_neighbors ):
@@ -88,6 +91,7 @@ def CategorizeQuestions(subject, state_teacher, k_neighbors ):
     except():
         pass
     return df_result.to_dict('records')
+
 
 @app.callback(  Output('status_teacher', 'children'),[Input('submit_button_teacher', 'n_clicks'), Input('table_teacher', 'rows')],
                 state=[State('subject_teacher', 'value'),State('test_number_teacher', 'value'), State('complete_confirm_teacher', 'value'),])
@@ -101,7 +105,10 @@ def UpdateDataToDatabase(n_clicks, rows, subject, test_number, complete_confirm)
         Answers = list(df['Answers'])
         return obj.UpdateRawDataForObject(Answers, Categories)
     return 'Status: You can start'
+
+
 #////////////////////////////////////////////////////////////////////////////////////////CallBacks for student/////////////////////////////////////////////////////
+
 @app.callback(Output('state_student', 'children'),[Input('subject_student', 'value')])
 def GetState(subject):
     try:
@@ -180,7 +187,7 @@ def update_output(n_clicks, tab, test_number, complete_confirm,
                         input21, input22, input23, input24, input25, input26, input27, input28, input29, input30,
                         input31, input32, input33, input34, input35, input36, input37, input38, input39, input40,
                         input41, input42, input43, input44, input45, input46, input47, input48, input49, input50]
-        return obj.UpdateRawDataForClass(list_options)
+        return obj.UpdateRawDataForClass(list_options, test_number)
     return 'Status: You can start'
 if __name__ == '__main__':
     app.run_server()
