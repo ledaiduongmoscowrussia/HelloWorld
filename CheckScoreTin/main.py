@@ -109,7 +109,7 @@ def UpdateDataToDatabase(n_clicks, rows, subject, test_number, complete_confirm)
         df = pd.DataFrame(rows)
         Categories = list(df['Category'])
         Answers = list(df['Answers'])
-        return obj.UpdateRawDataForObject(Answers, Categories)
+        return obj.UpdateRawDataForObject(Answers, Categories, test_number)
     return 'Status: You can start'
 
 

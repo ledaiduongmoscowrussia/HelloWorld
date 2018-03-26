@@ -102,7 +102,7 @@ class Teacher(Person):
         self.categories_of_subject = categories_of_subject
         self.number_questions_of_subject = number_questions_of_subject
         Person.__init__(self,file_raw_data= file_raw_data, tab= tab, number_rows_of_own_one_test = number_rows_of_own_one_test)
-    def UpdateRawDataForClass(self, Answers, Categories):
+    def UpdateRawDataForClass(self, Answers, Categories, test_number):
         Answers = Answers[0:self.number_questions_of_subject]
         Categories = Categories[0:self.number_questions_of_subject]
         for option in zip(Answers, Categories):
@@ -110,8 +110,7 @@ class Teacher(Person):
                 return 'Status: Anwers form is wrong, you need to repair your anwers'
             elif option[0] not in Options or option[1] not in self.categories_of_subject:
                 return 'Status: Anwers form is wrong, you need to repair your anwers'
-        num_test_done = self.GetNumberOfDoneTests(self.file_raw_data)
-        self.StreamData('CheckScoreTin', self.file_raw_data, [[num_test_done * 2 - 2] + Answers, [num_test_done * 2 - 1] + Categories])
+        self.StreamData('CheckScoreTin', self.file_raw_data, [[test_number * 2 - 2] + Answers, [test_number * 2 - 1] + Categories])
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
 
 
@@ -179,10 +178,10 @@ class EnglishTeacher(Teacher):
                          categories_of_subject= self.categories_of_subject,
                          number_questions_of_subject= self.number_questions_of_subject)
 
-    def UpdateRawDataForObject(self, Answers, Categories):
+    def UpdateRawDataForObject(self, Answers, Categories, test_number):
         Categories = [DeleteWhiteSpaceInFrontAndBack(category) for category in Categories]
         Answers = [DeleteWhiteSpaceInFrontAndBack(ans) for ans in Answers]
-        if self.UpdateRawDataForClass(Answers, Categories) == 'Status: Anwers form is wrong, you need to repair your anwers':
+        if self.UpdateRawDataForClass(Answers, Categories, test_number) == 'Status: Anwers form is wrong, you need to repair your anwers':
             return 'Status: Anwers form is wrong, you need to repair your anwers'
         df_feature_to_storage = self.ReadDataFrameFromMySQL('FeatureToStore')
         Categories_to_storage = [Categories[i] for i in list(df_feature_to_storage['Index'])]

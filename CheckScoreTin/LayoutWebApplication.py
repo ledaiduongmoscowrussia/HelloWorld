@@ -63,7 +63,7 @@ layout_teacher = html.Div([
             value= 'I have not done',
             style={'display': 'inline-block', 'float': 'right',}),
     html.Button(id='submit_button_teacher',type='n-clicks', children='SEND', style = {'display': 'inline-block', 'float': 'right',}),
-    html.Div(id='status_teacher')])
+    html.Div(id='status_teacher', style = {'display': 'inline-block', 'float': 'right',})])
 
 layout_student = html.Div(
     [html.Div([dcc.Link('HOME', href='/'),html.Br(),dcc.Link('LIST TESTS PAGE', href='/page_list_test'),html.Br(), dcc.Dropdown(id='subject_student', options=[{'label': i, 'value': i} for i in Subjects], value=None, placeholder = 'Select subject'),
