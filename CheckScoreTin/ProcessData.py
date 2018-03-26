@@ -53,7 +53,7 @@ class Person():
 
     def WriteDataFrimeToSQLDatabase(self, df, table):
         df.insert(loc=0, column='id', value=range(df.shape[0]))
-        pd.io.gbq.to_gbq(df, 'CheckScoreTin.' + table, 'artful-journey-197609', if_exists='replace')
+        df.to_gbq('CheckScoreTin.' + table, 'artful-journey-197609', if_exists='replace')
 
 class Teacher(Person):
     def __init__(self, file_raw_data, tab, number_rows_of_own_one_test, categories_of_subject, number_questions_of_subject):

@@ -19,9 +19,9 @@ app.layout = html.Div([
               [Input('url', 'pathname')])
 def display_page(pathname):
     if pathname == '/page_teacher':
-        return layout_teacher
+        return  layout_student
     else:
-        return layout_student
+        return layout_teacher
 
 # # You could also return a 404 "URL not found" page here
 # app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
@@ -77,7 +77,7 @@ def display_page(pathname):
 def GetState(subject):
     try:
         obj = GetTeacherObject(subject)
-        number_done_test_your = obj.GetNumberOfDoneTests(obj.file_raw_data, obj.number_rows_of_own_one_test)
+        number_done_test_your = obj.GetNumberOfDoneTests(obj.file_raw_data)
     except (KeyError, AttributeError):
         return 'You need to select subject in above dropdown'
     return 'You are doing test No ' + str(number_done_test_your + 1)
