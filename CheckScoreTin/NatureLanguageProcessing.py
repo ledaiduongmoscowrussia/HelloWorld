@@ -57,39 +57,6 @@ def ConvertATestToDictionary(text_exam, Answers, test_number):
         dict = ExtractATestToDictionary(text_exam, Answers, list_delimiters_0,test_number, get_head=True, get_tail=True)
     return dict
 
-
-def ConvertDictionaryToDataFrameToStore(dict, Answers, k_neighbors, length_feature):
-    df = ConvertADictionaryToDataFrame(dict)
-    # Get Trainning Data and their lables from Database
-    df_trainning = SubFunctions().ReadDataFrameFromMySQL('TrainningData')
-    df_trainning['Feature'] = df_trainning['Feature'].apply(ast.literal_eval)
-    data_trainning = np.array([UniformFeature(feature, length_feature) for feature in list(df_trainning['Feature'])])
-    lables = list(df_trainning['Lable'])
-    # PreCategorize test and built feature to storage
-    df = FirtsStepCategozineBySeaching(df)
-    df = df.reset_index().drop(['index'], axis = 1)
-    df['Index'] = list(df.index)
-    df_unlabled = df[df['Category'] == '0']
-    feature_to_storage = [ExtractFeaturesFromOptions(option) for option in list(df_unlabled['options'])]
-    df_feature_to_storage = pd.DataFrame()
-    df_feature_to_storage['Index'] = df_unlabled['Index']
-    df_feature_to_storage['Feature'] = pd.Series(feature_to_storage, name='Feature', index=df_feature_to_storage.index)
-    df_feature_to_storage['Feature'] = df_feature_to_storage['Feature'].apply(str)
-    data_test = np.array([UniformFeature(feature, length_feature) for feature in feature_to_storage])
-    # Test new data
-    clf = KNeighborsClassifier(n_neighbors=k_neighbors)
-    clf.fit(data_trainning, lables)
-    numerical_lable = clf.predict(data_test)
-    categorical_lable = list(LabelEncoderEnglishCategory.inverse_transform(numerical_lable))
-    for lable, index in zip(categorical_lable, list(df_unlabled.index)):
-        df.loc[index, 'Category'] = lable
-    # Create final dataframe to display
-    df_result = pd.DataFrame()
-    df_result['Index'] = range(1, 51)
-    df_result['Category'] = list(df['Category'])
-    df_result['Answers'] = Answers
-    return df_result, df_feature_to_storage, [(i+1) for i in list(df_unlabled['Index'])]
-
 def FillHeader2(question, number_question):
     if DeleteListCharacterFromString(question['header2'], [' ']) == '':
         list_indexs = list(map(lambda x: x.find('('+str(number_question)+')'), question['header11']))

@@ -117,7 +117,7 @@ class EnglishTeacher(Teacher):
     def CategorizeQuestions(self, state_teacher, k_neighbors):
         test_number = state_teacher[state_teacher.find('test No ') + len('test No '): len(state_teacher)]
         dict = list(ReadDocumentFromColection('DictionariesAllTests', {'test_number': test_number}))[0]
-        df_result, df_feature_to_storage, list_unlabeled_questions = ConvertDictionaryToDataFrameToStore(dict, dict[
+        df_result, df_feature_to_storage, list_unlabeled_questions = self.ConvertDictionaryToDataFrameToStore(dict, dict[
             'Answers'], k_neighbors, 50)
         status = [FillHeader2(dict['question' + str(i)], i) for i in list_unlabeled_questions]
         # Create and megre unlabled data frame
@@ -130,6 +130,40 @@ class EnglishTeacher(Teacher):
         df_result['Index'] = list(range(1, 51))
         self.WriteDataFrimeToSQLDatabase(df_feature_to_storage, 'FeatureToStore')
         return df_result
+
+    def ConvertDictionaryToDataFrameToStore(self, dict, Answers, k_neighbors, length_feature):
+        df = ConvertADictionaryToDataFrame(dict)
+        # Get Trainning Data and their lables from Database
+        df_trainning = self.ReadDataFrameFromMySQL('TrainningData')
+        df_trainning['Feature'] = df_trainning['Feature'].apply(ast.literal_eval)
+        data_trainning = np.array(
+            [UniformFeature(feature, length_feature) for feature in list(df_trainning['Feature'])])
+        lables = list(df_trainning['Lable'])
+        # PreCategorize test and built feature to storage
+        df = FirtsStepCategozineBySeaching(df)
+        df = df.reset_index().drop(['index'], axis=1)
+        df['Index'] = list(df.index)
+        df_unlabled = df[df['Category'] == '0']
+        feature_to_storage = [ExtractFeaturesFromOptions(option) for option in list(df_unlabled['options'])]
+        df_feature_to_storage = pd.DataFrame()
+        df_feature_to_storage['Index'] = df_unlabled['Index']
+        df_feature_to_storage['Feature'] = pd.Series(feature_to_storage, name='Feature',
+                                                     index=df_feature_to_storage.index)
+        df_feature_to_storage['Feature'] = df_feature_to_storage['Feature'].apply(str)
+        data_test = np.array([UniformFeature(feature, length_feature) for feature in feature_to_storage])
+        # Test new data
+        clf = KNeighborsClassifier(n_neighbors=k_neighbors)
+        clf.fit(data_trainning, lables)
+        numerical_lable = clf.predict(data_test)
+        categorical_lable = list(LabelEncoderEnglishCategory.inverse_transform(numerical_lable))
+        for lable, index in zip(categorical_lable, list(df_unlabled.index)):
+            df.loc[index, 'Category'] = lable
+        # Create final dataframe to display
+        df_result = pd.DataFrame()
+        df_result['Index'] = range(1, 51)
+        df_result['Category'] = list(df['Category'])
+        df_result['Answers'] = Answers
+        return df_result, df_feature_to_storage, [(i + 1) for i in list(df_unlabled['Index'])]
 
 
 class EnglishStudent(Student):
