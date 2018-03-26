@@ -111,8 +111,7 @@ class Teacher(Person):
             elif option[0] not in Options or option[1] not in self.categories_of_subject:
                 return 'Status: Anwers form is wrong, you need to repair your anwers'
         num_test_done = self.GetNumberOfDoneTests(self.file_raw_data)
-        self.StreamData('CheckScoreTin', self.file_raw_data, [[num_test_done] + Answers])
-        self.StreamData('CheckScoreTin', self.file_raw_data, [[num_test_done + 1] + Categories])
+        self.StreamData('CheckScoreTin', self.file_raw_data, [[num_test_done * 2 - 2] + Answers, [num_test_done * 2 - 1] + Categories])
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
 
 
