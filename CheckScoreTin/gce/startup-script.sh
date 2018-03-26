@@ -49,6 +49,8 @@ virtualenv -p python3 /opt/app/CheckScoreTin/env
 /opt/app/CheckScoreTin/env/bin/pip install --upgrade pip pandas-gbq google-cloud google-auth google-auth-oauthlib 
 #................................
 /opt/app/CheckScoreTin/env/bin/pip install -r /opt/app/CheckScoreTin/requirements.txt
+#................................
+/opt/app/CheckScoreTin/env/bin/pip freeze > /opt/app/CheckScoreTin/re.txt
 
 ##................................ Make sure the pythonapp user owns the application code
 chown -R pythonapp:pythonapp /opt/app

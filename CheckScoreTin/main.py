@@ -8,6 +8,7 @@ from flask import Flask
 print(dcc.__version__) # 0.6.0 or above is required
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server)
+app.config['suppress_callback_exceptions']=True
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page_content'),
