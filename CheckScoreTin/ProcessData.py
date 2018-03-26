@@ -31,7 +31,8 @@ class Person():
     def GetNumberOfDoneTests(self, file):
         df = pd.read_gbq('select * from CheckScoreTin.' + file + ' order by id',
                          project_id='artful-journey-197609')
-        return len(df)
+        number_done_test_your = int( len(df) / self.number_rows_of_own_one_test)
+        return number_done_test_your
 
     def StreamData(self, dataset_id, table_id, rows):
         bigquery_client = bigquery.Client()
