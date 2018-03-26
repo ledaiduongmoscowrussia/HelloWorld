@@ -1,6 +1,7 @@
 from LayoutWebApplication import *
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
+from LayoutListTests import *
 from ProcessData import *
 from flask import Flask
 
@@ -19,60 +20,64 @@ app.layout = html.Div([
               [Input('url', 'pathname')])
 def display_page(pathname):
     if pathname == '/page_teacher':
-        return  layout_student
+        return layout_teacher
+    elif pathname == '/page_student':
+        return layout_student
+    elif pathname == '/page_list_test':
+        return layout_list_test
+    elif pathname == '/page_admin':
+        return layout_admin
     else:
         return layout_teacher
+# You could also return a 404 "URL not found" page here
+app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
 
-# # You could also return a 404 "URL not found" page here
-# app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
-#
-# # //////////////////////////////////////////////////////////////////CallBack for admin page//////////////////////////////////////////////////////////////////////
-# # Give user the his or her state to fill number of next test
-# @app.callback(Output('state_admin', 'children'),[Input('subject_admin', 'value')])
-# def GetState(subject):
-#     try:
-#         obj = GetAdminObject(subject)
-#         number_done_test_your = obj.GetNumberOfDoneTests()
-#     except KeyError:
-#         return 'You need to select subject in above dropdown'
-#     return 'You are doing test No ' + str(number_done_test_your + 1)
-#
-# @app.callback(  Output('table_admin', 'rows'),[Input('submit_button_admin', 'n_clicks')],
-#                 state=[State('test_number_admin', 'value'),State('complete_confirm_admin', 'value'),
-#                        State('text_area_exam_admin', 'value'), State('text_area_answers_admin', 'value'),
-#                        State('subject_admin', 'value')])
-# def UpdateDataToDatabase(n_clicks, test_number, complete_confirm, text_exam, text_answers, subject):
-#     if n_clicks != None:
-#         obj = GetAdminObject(subject)
-#         df_result = obj.UpdateDataToDatabase(text_answers, text_exam, test_number, complete_confirm)
-#         print(df_result)
-#     return df_result.to_dict('records')
-#
-# # /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
-# @app.callback(Output('graphs','children'),[Input('subject_plot', 'value')])
-# def UpdateDataAndPlotGraphSecond(tab):
-#     obj = GetStudentObject(tab)
-#     obj.UpdateAllTest()
-#     graph = [dcc.Graph(id='g',figure= {'data': obj.GetDataForGraphForClass(obj.file_preprocessed_data), 'layout': go.Layout(
-#                 title = 'PRESENTATION OF SCORES AND EFFECIENCIES',
-#                 yaxis={'range': [0, 10]},
-#                 margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
-#                 legend={'x': 1, 'y': 1},
-#             )})]
-#     data = obj.GetDataForGraphForClassSecond(obj.file_preprocessed_data, Categories[tab])
-#     graphs = [dcc.Graph(id= id,figure= {'data': data_i, 'layout': go.Layout(
-#                 title= id,
-#                 yaxis={'range': [0, 100]},
-#                 margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
-#                 legend={'x': 1, 'y': 1},
-#             )})
-#               for id, data_i in zip(Categories[tab], data)]
-#     return graph + graphs
-# //////////////////////////////////////////////////////////////////CallBack for teacher page//////////////////////////////////////////////////////////////////////
-
+# //////////////////////////////////////////////////////////////////CallBack for admin page//////////////////////////////////////////////////////////////////////
 # Give user the his or her state to fill number of next test
+@app.callback(Output('state_admin', 'children'),[Input('subject_admin', 'value')])
+def GetState(subject):
+    try:
+        obj = GetAdminObject(subject)
+        number_done_test_your = obj.GetNumberOfDoneTests()
+    except KeyError:
+        return 'You need to select subject in above dropdown'
+    return 'You are doing test No ' + str(number_done_test_your + 1)
+
+@app.callback(  Output('table_admin', 'rows'),[Input('submit_button_admin', 'n_clicks')],
+                state=[State('test_number_admin', 'value'),State('complete_confirm_admin', 'value'),
+                       State('text_area_exam_admin', 'value'), State('text_area_answers_admin', 'value'),
+                       State('subject_admin', 'value')])
+def UpdateDataToDatabase(n_clicks, test_number, complete_confirm, text_exam, text_answers, subject):
+    if n_clicks != None:
+        obj = GetAdminObject(subject)
+        df_result = obj.UpdateDataToDatabase(text_answers, text_exam, test_number, complete_confirm)
+        print(df_result)
+    return df_result.to_dict('records')
+
+# /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
+@app.callback(Output('graphs','children'),[Input('subject_plot', 'value')])
+def UpdateDataAndPlotGraphSecond(tab):
+    obj = GetStudentObject(tab)
+    obj.UpdateAllTest()
+    graph = [dcc.Graph(id='g',figure= {'data': obj.GetDataForGraphForClass(obj.file_preprocessed_data), 'layout': go.Layout(
+                title = 'PRESENTATION OF SCORES AND EFFECIENCIES',
+                yaxis={'range': [0, 10]},
+                margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
+                legend={'x': 1, 'y': 1},
+            )})]
+    data = obj.GetDataForGraphForClassSecond(obj.file_preprocessed_data, Categories[tab])
+    graphs = [dcc.Graph(id= id,figure= {'data': data_i, 'layout': go.Layout(
+                title= id,
+                yaxis={'range': [0, 100]},
+                margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
+                legend={'x': 1, 'y': 1},
+            )})
+              for id, data_i in zip(Categories[tab], data)]
+    return graph + graphs
 
 
+# //////////////////////////////////////////////////////////////////CallBack for teacher page//////////////////////////////////////////////////////////////////////
+# Give user the his or her state to fill number of next test
 @app.callback(Output('state_teacher', 'children'),[Input('subject_teacher', 'value')])
 def GetState(subject):
     try:

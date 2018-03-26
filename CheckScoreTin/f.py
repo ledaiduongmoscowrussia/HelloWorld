@@ -5,24 +5,19 @@ from NatureLanguageProcessing import *
 from google.cloud import bigquery
 import pprint
 
+def GetStudentObject(tab):
+    if tab == Subjects[0]: return EnglishStudent()
+    elif tab == Subjects[1]: return MathStudent()
+    elif tab == Subjects[2]: return PhysicsStudent()
+
+def GetTeacherObject(tab):
+    if tab == Subjects[0]: return EnglishTeacher()
+    elif tab == Subjects[1]: return MathTeacher()
+    elif tab == Subjects[2]: return PhysicsTeacher()
 
 
-
-class SubFunctions:
-    def __init__(self):pass
-
-    def ReadDataFrameFromMySQL(self, path):
-        df = pd.read_gbq('SELECT * FROM CheckScoreTin.' + path + ' ORDER BY id ', 'artful-journey-197609').drop(
-            ['id'], axis=1)
-        return df
-
-    def WriteDataFrimeToSQLDatabase(self, df, table):
-        df.insert(loc=0, column='id', value=range(df.shape[0]))
-        df.to_gbq('CheckScoreTin.' + table, 'artful-journey-197609', if_exists='replace')
-
-class Person(SubFunctions):
+class Person():
     def __init__(self, file_raw_data, tab, number_rows_of_own_one_test ):
-        SubFunctions.__init__(self)
         self.tab = tab
         self.file_raw_data = file_raw_data
         self.number_rows_of_own_one_test = number_rows_of_own_one_test
@@ -52,50 +47,14 @@ class Person(SubFunctions):
             print('Errors:')
             pprint(errors)
 
-class Subject(SubFunctions):
-    def __init__(self, file_preprocessed_data, file_raw_data_student, file_raw_data_teacher,
-                 number_rows_of_one_test_of_teacher):
-        self.file_preprocessed_data = file_preprocessed_data
-        self.file_raw_data_student = file_raw_data_student
-        self.file_raw_data_teacher = file_raw_data_teacher
-        self.number_rows_of_one_test_of_teacher = number_rows_of_one_test_of_teacher
-        SubFunctions.__init__(self)
+    def ReadDataFrameFromMySQL(self, path):
+        df = pd.read_gbq('SELECT * FROM CheckScoreTin.' + path + ' ORDER BY id ', 'artful-journey-197609').drop(
+            ['id'], axis=1)
+        return df
 
-    def CheckAllNewTests(self):
-        df_file_preprocessed_data = self.ReadDataFrameFromMySQL(self.file_preprocessed_data)
-        df_file_raw_data_student = self.ReadDataFrameFromMySQL(self.file_raw_data_student)
-        df_file_raw_data_teacher = self.ReadDataFrameFromMySQL(self.file_raw_data_teacher)
-        number_scaned_tests = len(df_file_preprocessed_data.index)
-        number_student_tests = len(df_file_raw_data_student.index)
-        number_teacher_tests = int(len(df_file_raw_data_teacher.index) / self.number_rows_of_one_test_of_teacher)
-        tests_ready_to_scan = list(range(number_scaned_tests+1, min(number_student_tests, number_teacher_tests) + 1))
-        return tests_ready_to_scan
-
-    def ProcessATest(self, categories, anwrers_correct, list_anwers_user):
-        df = pd.DataFrame()
-        df_result = pd.DataFrame()
-        df['Categories'] = categories
-        df['AnwersCorrect'] = anwrers_correct
-        Datetime = list_anwers_user.pop(0)
-        df['AnwersUser'] = list_anwers_user
-        df['Score'] = np.where(df.AnwersUser == df.AnwersCorrect, 1, 0)
-        df_result['Percentage'] = 100 * df.groupby('Categories').sum()['Score'] / df.groupby('Categories').count()['Score']
-        score = 10 * df['Score'].sum() / df['Score'].count()
-        filling_up = 10 * len([answer for answer in list_anwers_user if answer != None])/df['Score'].count()
-        effectioncy = 10 * score / filling_up
-        return [df_result,Datetime, score, effectioncy, filling_up]
-
-    def UpdateATest(self, test_oder):
-        categories = list(self.ReadDataFrameFromMySQL(self.file_raw_data_teacher).loc[test_oder * self.number_rows_of_one_test_of_teacher - 1, :])
-        anwrers_correct = list(self.ReadDataFrameFromMySQL(self.file_raw_data_teacher).loc[test_oder * self.number_rows_of_one_test_of_teacher - self.number_rows_of_one_test_of_teacher, :])
-        list_anwers_user = list(self.ReadDataFrameFromMySQL(self.file_raw_data_student).loc[test_oder - 1, :])
-        [df_type, Datetime, score, effectioncy, filling_up] = self.ProcessATest(categories, anwrers_correct, list_anwers_user)
-        df_score = pd.DataFrame(data=[[score]], index=['Score'], columns=['Percentage'])
-        df_effectioncy = pd.DataFrame(data=[[effectioncy]], index=['Effectioncy'], columns=['Percentage'])
-        df_filling_up = pd.DataFrame(data=[[filling_up]], index=['Filling_up'], columns=['Percentage'])
-        df_date_time = pd.DataFrame(data=[[Datetime]], index=['Datetime'], columns=['Percentage'])
-        df_result = pd.concat([df_date_time, df_score, df_effectioncy, df_filling_up, df_type], axis=0)
-        self.AddSeriesToRowOfDataFrameByName(self.file_preprocessed_data, df_result['Percentage'])
+    def WriteDataFrimeToSQLDatabase(self, df, table):
+        df.insert(loc=0, column='id', value=range(df.shape[0]))
+        df.to_gbq('CheckScoreTin.' + table, 'artful-journey-197609', if_exists='replace')
 
 class Teacher(Person):
     def __init__(self, file_raw_data, tab, number_rows_of_own_one_test, categories_of_subject, number_questions_of_subject):
@@ -115,7 +74,6 @@ class Teacher(Person):
         self.StreamData('CheckScoreTin', self.file_raw_data, [[num_test_done + 1] + Categories])
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
 
-
 class Student(Person):
     def __init__(self, file_raw_data, tab, number_rows_of_own_one_test, number_questions_of_subject):
         self.number_questions_of_subject = number_questions_of_subject
@@ -129,43 +87,6 @@ class Student(Person):
         list_options = [datetime.now()] + list_options
         self.StreamData('CheckScoreTin', self.file_raw_data, [[test_number] + list_options])
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
-    def GetDataForGraphForClass(self, file_preprocessed_data):
-        df = self.ReadDataFrameFromMySQL(file_preprocessed_data)
-        data = [
-            {
-                'x': df['Datetime'],
-                'y': df['Score'],
-                'name': 'Score',
-                'marker': {'color': 'rgb(255, 0, 0)'},
-            },
-            {
-                'x': df['Datetime'],
-                'y': df['Filling_up'],
-                'name': 'Filling_up',
-                'marker': {'color': 'rgb(0, 0, 0)'},
-            },
-            {
-                'x': df['Datetime'],
-                'y': df['Effectioncy'],
-                'name': 'Effectioncy',
-                'marker': {'color': 'rgb(0, 213, 255)'},
-            }]
-        return data
-
-    def GetDataForGraphForClassSecond(self, file_preprocessed_data, categories):
-        df = self.ReadDataFrameFromMySQL(file_preprocessed_data)
-        def EsarerToSee (x):
-            if x == 0: return 2.222222222
-            else:return x
-        data = [
-            {
-                'x': list(range(1, df['Datetime'].count() + 1)),
-                'y': [EsarerToSee(x) for x in list(df[category])],
-                'name': category,
-                'type': 'bar',
-                'marker': { 'color': 'rgb(0,213,255)'}
-            }for category in categories]
-        return [[data_i] for data_i in data]
 
 class EnglishTeacher(Teacher):
     def __init__(self):
@@ -245,7 +166,7 @@ class EnglishTeacher(Teacher):
         return df_result, df_feature_to_storage, [(i + 1) for i in list(df_unlabled['Index'])]
 
 
-class EnglishStudent(Student, Subject):
+class EnglishStudent(Student):
     def __init__(self):
         self.tab = 'English student'
         self.number_rows_of_own_one_test = 1
@@ -257,10 +178,6 @@ class EnglishStudent(Student, Subject):
         Student.__init__(self, file_raw_data= self.file_raw_data_student, tab= self.tab,
                          number_rows_of_own_one_test= self.number_rows_of_own_one_test,
                          number_questions_of_subject= self.number_questions_of_subject)
-        Subject.__init__(self, file_preprocessed_data=self.file_preprocessed_data,
-                         file_raw_data_student= self.file_raw_data_student,
-                         file_raw_data_teacher= self.file_raw_data_teacher,
-                         number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
     def UpdateAllTest(self):
         tests_ready_to_scan = self.CheckAllNewTests()
         if len(tests_ready_to_scan) > 0:
@@ -279,6 +196,7 @@ class MathTeacher(Teacher):
                          self.number_rows_of_own_one_test,
                          categories_of_subject= self.categories_of_subject,
                          number_questions_of_subject= self.number_questions_of_subject)
+
     def UpdateRawDataForObject(self, list_options, categories):
         if self.UpdateRawDataForClass(list_options, categories) == 'Status: Anwers form is wrong, you need to repair your anwers':
             return 'Status: Anwers form is wrong, you need to repair your anwers'
@@ -288,7 +206,7 @@ class MathTeacher(Teacher):
         df_result = self.ReadDataFrameFromMySQL('MathIntermediateData')
         return df_result
 
-class MathStudent(Student, Subject):
+class MathStudent(Student):
     def __init__(self):
         self.tab = 'Math student'
         self.number_rows_of_own_one_test = 1
@@ -300,15 +218,6 @@ class MathStudent(Student, Subject):
         Student.__init__(self, file_raw_data= self.file_raw_data_student, tab= self.tab,
                           number_rows_of_own_one_test= self.number_rows_of_own_one_test,
                          number_questions_of_subject= self.number_questions_of_subject)
-        Subject.__init__(self, file_preprocessed_data=self.file_preprocessed_data,
-                         file_raw_data_student= self.file_raw_data_student,
-                         file_raw_data_teacher= self.file_raw_data_teacher,
-                         number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 class PhysicsTeacher(Teacher):
     def __init__(self):
@@ -331,7 +240,7 @@ class PhysicsTeacher(Teacher):
         df_result = self.ReadDataFrameFromMySQL('PhysicsIntermediateData')
         return df_result
 
-class PhysicsStudent(Student, Subject):
+class PhysicsStudent(Student):
     def __init__(self):
         self.tab = 'Physics student'
         self.number_rows_of_own_one_test = 1
@@ -343,74 +252,6 @@ class PhysicsStudent(Student, Subject):
         Student.__init__(self, file_raw_data= self.file_raw_data_student, tab= self.tab,
                          number_rows_of_own_one_test= self.number_rows_of_own_one_test,
                          number_questions_of_subject= self.number_questions_of_subject)
-        Subject.__init__(self, file_preprocessed_data=self.file_preprocessed_data,
-                         file_raw_data_student= self.file_raw_data_student,
-                         file_raw_data_teacher= self.file_raw_data_teacher,
-                         number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 
 
-class EnglishAdmin(SubFunctions):
-    def __init__(self):
-        SubFunctions.__init__(self)
-    def GetNumberOfDoneTests(self):
-        return ReadNumberOfDocuments('DictionariesAllTests')
-
-    def UpdateDataToDatabase(self, text_answers, text_exam, test_number, complete_confirm):
-        Answers = ExtractAnswersFromText(text_answers)
-        dict = ConvertATestToDictionary(text_exam, Answers, test_number)
-        df_result, df_feature_to_storage, list_unlabeled_questions = ConvertDictionaryToDataFrameToStore(dict, Answers, 1, 50)
-        if complete_confirm == 'I have done':
-            AddDocumentToColection('DictionariesAllTests', dict)
-        return df_result
-
-
-class MathAdmin(SubFunctions):
-    def __init__(self):
-        SubFunctions.__init__(self)
-
-    def GetNumberOfDoneTests(self):
-        return int(len(self.ReadDataFrameFromMySQL('MathTeacherCategories'))/2)
-
-    def UpdateDataToDatabase(self, text_answers, text_exam, test_number, complete_confirm):
-        Answers = ExtractAnswersFromText(text_answers)
-        dict = ConvertATestToDictionary(text_exam, Answers, test_number)
-        df_result = CategorizeQuestionsMath()
-        if complete_confirm == 'I have done':
-            self.WriteDataFrimeToSQLDatabase(df_result, 'MatIntermediateData')
-        return df_result
-
-class PhysicsAdmin(SubFunctions):
-    def __init__(self):
-        SubFunctions.__init__(self)
-
-    def GetNumberOfDoneTests(self):
-        return int(len(self.ReadDataFrameFromMySQL('PhysicsTeacherCategories'))/2)
-
-    def UpdateDataToDatabase(self, text_answers, text_exam, test_number, complete_confirm):
-        Answers = ExtractAnswersFromText(text_answers)
-        df_result = CategorizePhysicsTest(Answers, text_exam)
-        if complete_confirm == 'I have done':
-            self.WriteDataFrimeToSQLDatabase(df_result, 'PhysicsIntermediateData')
-        return df_result
-
-
-def GetStudentObject(tab):
-    if tab == Subjects[0]: return EnglishStudent()
-    elif tab == Subjects[1]: return MathStudent()
-    elif tab == Subjects[2]: return PhysicsStudent()
-
-def GetTeacherObject(tab):
-    if tab == Subjects[0]: return EnglishTeacher()
-    elif tab == Subjects[1]: return MathTeacher()
-    elif tab == Subjects[2]: return PhysicsTeacher()
-
-def GetAdminObject(tab):
-    if tab == Subjects[0]: return EnglishAdmin()
-    elif tab == Subjects[1]: return MathAdmin()
-    elif tab == Subjects[2]: return PhysicsAdmin()
