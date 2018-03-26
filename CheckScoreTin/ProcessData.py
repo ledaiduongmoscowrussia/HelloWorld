@@ -198,3 +198,12 @@ class PhysicsStudent(Student):
 
 
 
+def GetStudentObject(tab):
+    if tab == Subjects[0]: return EnglishStudent()
+    elif tab == Subjects[1]: return MathStudent()
+    elif tab == Subjects[2]: return PhysicsStudent()
+
+def GetTeacherObject(tab):
+    if tab == Subjects[0]: return EnglishTeacher()
+    elif tab == Subjects[1]: return MathTeacher()
+    elif tab == Subjects[2]: return PhysicsTeacher()
