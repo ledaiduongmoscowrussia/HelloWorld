@@ -28,7 +28,7 @@ def display_page(pathname):
     elif pathname == '/page_admin':
         return layout_admin
     else:
-        return layout_teacher
+        return layout_home_page
 # You could also return a 404 "URL not found" page here
 app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
 

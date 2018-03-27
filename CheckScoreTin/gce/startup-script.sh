@@ -15,55 +15,33 @@
 
 # [START startup]
 set -v
-
-# Talk to the metadata server to get the project id
 PROJECTID=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/project-id" -H "Metadata-Flavor: Google")
-
-# Install logging monitor. The monitor will automatically pickup logs sent to
-# syslog.
 # [START logging]
 curl -s "https://storage.googleapis.com/signals-agents/logging/google-fluentd-install.sh" | bash
 service google-fluentd restart &
 # [END logging]
 
-##................................ Install dependencies from apt
-apt-get update
-apt-get install -yq \
-    git build-essential supervisor python python-dev python3 python3-dev python-pip libffi-dev \
-    libssl-dev
 
 # Create a pythonapp user. The application will run as this user.
 useradd -m -d /home/pythonapp pythonapp
-##................................ pip from apt is out of date, so make it update itself and install virtualenv.
-pip install --upgrade pip virtualenv
+##................................ pip from apt is out of date, so make it update itself and 
 export HOME=/root
-#................................
 rm -r /opt/app
 git config --global credential.helper gcloud.sh
 #................................
 git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
-
-#................................ Install app dependencies
-virtualenv -p python3 /opt/app/CheckScoreTin/env
-#................................ pip from apt is out of date, so make it update itself and install virtualenv.
-/opt/app/CheckScoreTin/env/bin/pip install --upgrade pip pandas-gbq google-cloud google-auth google-auth-oauthlib 
-#................................
-/opt/app/CheckScoreTin/env/bin/pip install -r /opt/app/CheckScoreTin/requirements.txt
-#................................
-/opt/app/CheckScoreTin/env/bin/pip freeze > /opt/app/CheckScoreTin/re.txt
-
 ##................................ Make sure the pythonapp user owns the application code
 chown -R pythonapp:pythonapp /opt/app
 cat >/etc/supervisor/conf.d/python-app.conf << EOF
 [program:pythonapp]
 directory=/opt/app/CheckScoreTin
-command=/opt/app/CheckScoreTin/env/bin/gunicorn main:server --bind 0.0.0.0:8080
+command=/opt/env/bin/gunicorn main:server --bind 0.0.0.0:8080
 autostart=true
 autorestart=true
 user=pythonapp
 # Environment variables ensure that the application runs inside of the
 # configured virtualenv.
-environment=VIRTUAL_ENV="/opt/app/env/CheckScoreTin",PATH="/opt/app/CheckScoreTin/env/bin",\
+environment=VIRTUAL_ENV="/opt/env/CheckScoreTin",PATH="/opt/env/bin",\
     HOME="/home/pythonapp",USER="pythonapp"
 stdout_logfile=syslog
 stderr_logfile=syslog
