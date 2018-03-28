@@ -13,7 +13,6 @@ layout_home_page = html.Div([
     html.Div([dcc.Link('TEACHER PAGE', href='/page_teacher'),html.Br(),dcc.Link('STUDENT PAGE', href='/page_student')
               ,html.Br(),dcc.Link('LIST TESTS PAGE', href='/page_list_test'), html.Br(), dcc.Link('ADMIN PAGE', href='/page_admin')],
              style = {'width': '10%','float': 'right','display': 'inline-block'}),
-    html.H1(children='----------------------'),
     html.Div(id='graphs')])
 
 layout_admin = html.Div([

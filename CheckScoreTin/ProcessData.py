@@ -412,3 +412,16 @@ def GetAdminObject(tab):
     if tab == Subjects[0]: return EnglishAdmin()
     elif tab == Subjects[1]: return MathAdmin()
     elif tab == Subjects[2]: return PhysicsAdmin()
+
+
+def Caculation(df_answers, df_solutions, df_categories, category):
+  number_all_questions = np.sum(np.sum(df_categories == category))
+  if number_all_questions != 0:
+    df_accurate = np.logical_and(df_answers == df_solutions, df_categories == category)
+    df_unfilled = reduce(np.logical_and, [df_answers != df_solutions, df_answers.isnull(), df_categories == category])
+    df_inaccurate = reduce(np.logical_and, [df_answers != df_solutions, np.logical_not(df_answers.isnull()), df_categories == category])
+    results = (category, np.sum(np.sum(df_accurate)) / number_all_questions, np.sum(np.sum(df_unfilled)) / number_all_questions, np.sum(np.sum(df_inaccurate)) / number_all_questions,
+              np.sum(np.sum(df_accurate)), np.sum(np.sum(df_unfilled)), np.sum(np.sum(df_inaccurate)))
+    return results
+  else: return None
+

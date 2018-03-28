@@ -4,6 +4,7 @@ from dash.dependencies import Input, Output, State
 from LayoutListTests import *
 from ProcessData import *
 from flask import Flask
+from Dataset import *
 
 
 print(dcc.__version__) # 0.6.0 or above is required
@@ -57,23 +58,90 @@ def UpdateDataToDatabase(n_clicks, test_number, complete_confirm, text_exam, tex
 # /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
 @app.callback(Output('graphs','children'),[Input('subject_plot', 'value')])
 def UpdateDataAndPlotGraphSecond(tab):
-    obj = GetStudentObject(tab)
-    obj.UpdateAllTest()
-    graph = [dcc.Graph(id='g',figure= {'data': obj.GetDataForGraphForClass(obj.file_preprocessed_data), 'layout': go.Layout(
-                title = 'PRESENTATION OF SCORES AND EFFECIENCIES',
-                yaxis={'range': [0, 10]},
-                margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
-                legend={'x': 1, 'y': 1},
-            )})]
-    data = obj.GetDataForGraphForClassSecond(obj.file_preprocessed_data, Categories[tab])
-    graphs = [dcc.Graph(id= id,figure= {'data': data_i, 'layout': go.Layout(
-                title= id,
-                yaxis={'range': [0, 100]},
-                margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
-                legend={'x': 1, 'y': 1},
-            )})
-              for id, data_i in zip(Categories[tab], data)]
-    return graph + graphs
+    day_before = "'2018-02-04 09:16:00'"
+    day_after = "'2019-02-25 01:30:23'"
+    ####################################
+    df_answer = pd.read_gbq(
+        "select  * from CheckScoreTin.{}StudentAnwers where Datetime > TIMESTAMP({}) and Datetime < TIMESTAMP({}) order by id"
+        .format(tab, day_before, day_after),
+        'artful-journey-197609', dialect='standard')
+    test_start = np.min(list(df_answer['id']))
+    test_end = np.max(list(df_answer['id']))
+    df_answer = df_answer.drop(columns=['id', 'Datetime'])
+    ####################################
+    df_solution = pd.read_gbq(
+        "select  * from  CheckScoreTin.{}TeacherCategories where id >= {} * 2 and id <= {} * 2 and MOD(id, 2) = 0 order by id "
+        .format(tab, test_start, test_end),
+        'artful-journey-197609', dialect='standard')
+    df_solution = df_solution.drop(columns=['id'])
+    #####################################
+    df_categories = pd.read_gbq(
+        "select  * from  CheckScoreTin.{}TeacherCategories where id >= {} * 2 and id <= {} * 2 + 1 and MOD(id, 2) = 1 order by id "
+        .format(tab, test_start, test_end),
+        'artful-journey-197609', dialect='standard')
+    df_categories = df_categories.drop(columns=['id'])
+    #####################################
+    data_raw1 = sorted(
+        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories, 'percent'), EnglishCategory)) if
+         i != None], key=lambda x: x[1], reverse=True)
+    trace1 = {
+        'x': [x[0] for x in data_raw1],
+        'y': [x[1] for x in data_raw1],
+        'name': 'accurate',
+        'type': 'bar'
+    }
+    trace2 = {
+        'x': [x[0] for x in data_raw1],
+        'y': [x[2] for x in data_raw1],
+        'name': 'unfilled',
+        'type': 'bar'
+    }
+    trace3 = {
+        'x': [x[0] for x in data_raw1],
+        'y': [x[3] for x in data_raw1],
+        'name': 'inaccurate',
+        'type': 'bar'
+    }
+    data1 = [trace1, trace2, trace3]
+    layout1 = {
+        'xaxis': {'title': 'X axis'},
+        'yaxis': {'title': 'Y axis'},
+        'barmode': 'relative',
+        'title': 'Relative Barmode'
+    }
+    #######################################
+    data_raw2 = sorted(
+        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), EnglishCategory)) if
+         i != None], key=lambda x: x[1], reverse=True)
+    trace4 = {
+        'x': [x[0] for x in data_raw2],
+        'y': [x[4] for x in data_raw2],
+        'name': 'accurate',
+        'type': 'bar'
+    }
+    trace5 = {
+        'x': [x[0] for x in data_raw2],
+        'y': [x[5] for x in data_raw2],
+        'name': 'unfilled',
+        'type': 'bar'
+    }
+    trace6 = {
+        'x': [x[0] for x in data_raw2],
+        'y': [x[6] for x in data_raw2],
+        'name': 'inaccurate',
+        'type': 'bar'
+    }
+    data2 = [trace4, trace5, trace6]
+    layout2 = {
+        'xaxis': {'title': 'X axis'},
+        'yaxis': {'title': 'Y axis'},
+        'barmode': 'relative',
+        'title': 'Relative Barmode'
+    }
+    #######################################
+    graphs = [dcc.Graph(id='g1',figure= {'data': data1, 'layout': layout1 }),
+              dcc.Graph(id='g2', figure={'data': data2, 'layout': layout2})]
+    return graphs
 
 
 # //////////////////////////////////////////////////////////////////CallBack for teacher page//////////////////////////////////////////////////////////////////////
