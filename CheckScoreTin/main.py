@@ -82,7 +82,7 @@ def UpdateDataAndPlotGraphSecond(tab):
     df_categories = df_categories.drop(columns=['id'])
     #####################################
     data_raw1 = sorted(
-        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories, 'percent'), EnglishCategory)) if
+        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), EnglishCategory)) if
          i != None], key=lambda x: x[1], reverse=True)
     trace1 = {
         'x': [x[0] for x in data_raw1],
