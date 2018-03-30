@@ -7,6 +7,7 @@ from flask import Flask
 from Dataset import *
 
 
+
 print(dcc.__version__) # 0.6.0 or above is required
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server)
@@ -56,10 +57,12 @@ def UpdateDataToDatabase(n_clicks, test_number, complete_confirm, text_exam, tex
     return df_result.to_dict('records')
 
 # /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
-@app.callback(Output('graphs','children'),[Input('subject_plot', 'value')])
-def UpdateDataAndPlotGraphSecond(tab):
-    day_before = "'2018-02-04 09:16:00'"
-    day_after = "'2019-02-25 01:30:23'"
+@app.callback(Output('graphs','children'),[Input('subject_plot', 'value'),
+                                           Input('range_date_time', 'start_date'),
+                                           Input('range_date_time', 'end_date')])
+def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
+    day_before = str("'" + str(start_date) + "'")
+    day_after = str("'" + str(end_date) + "'")
     ####################################
     df_answer = pd.read_gbq(
         "select  * from CheckScoreTin.{}StudentAnwers where Datetime > TIMESTAMP({}) and Datetime < TIMESTAMP({}) order by id"
