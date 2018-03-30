@@ -29,6 +29,9 @@ def display_page(pathname):
         return layout_list_test
     elif pathname == '/page_admin':
         return layout_admin
+    elif pathname == '/page_table_results':
+        from table_results import layout_table_result
+        return layout_table_result
     else:
         return layout_home_page
 # You could also return a 404 "URL not found" page here

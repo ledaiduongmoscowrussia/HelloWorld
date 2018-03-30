@@ -20,6 +20,40 @@ class SubFunctions:
         df.insert(loc=0, column='id', value=range(df.shape[0]))
         df.to_gbq('CheckScoreTin.' + table, 'artful-journey-197609', if_exists='replace')
 
+    def ConvertDictionaryToDataFrameToStore(self, dict, Answers, k_neighbors, length_feature):
+        df = ConvertADictionaryToDataFrame(dict)
+        # Get Trainning Data and their lables from Database
+        df_trainning = self.ReadDataFrameFromMySQL('TrainningData')
+        df_trainning['Feature'] = df_trainning['Feature'].apply(ast.literal_eval)
+        data_trainning = np.array(
+            [UniformFeature(feature, length_feature) for feature in list(df_trainning['Feature'])])
+        lables = list(df_trainning['Lable'])
+        # PreCategorize test and built feature to storage
+        df = FirtsStepCategozineBySeaching(df)
+        df = df.reset_index().drop(['index'], axis=1)
+        df['Index'] = list(df.index)
+        df_unlabled = df[df['Category'] == '0']
+        feature_to_storage = [ExtractFeaturesFromOptions(option) for option in list(df_unlabled['options'])]
+        df_feature_to_storage = pd.DataFrame()
+        df_feature_to_storage['Index'] = df_unlabled['Index']
+        df_feature_to_storage['Feature'] = pd.Series(feature_to_storage, name='Feature',
+                                                     index=df_feature_to_storage.index)
+        df_feature_to_storage['Feature'] = df_feature_to_storage['Feature'].apply(str)
+        data_test = np.array([UniformFeature(feature, length_feature) for feature in feature_to_storage])
+        # Test new data
+        clf = KNeighborsClassifier(n_neighbors=k_neighbors)
+        clf.fit(data_trainning, lables)
+        numerical_lable = clf.predict(data_test)
+        categorical_lable = list(LabelEncoderEnglishCategory.inverse_transform(numerical_lable))
+        for lable, index in zip(categorical_lable, list(df_unlabled.index)):
+            df.loc[index, 'Category'] = lable
+        # Create final dataframe to display
+        df_result = pd.DataFrame()
+        df_result['Index'] = range(1, 51)
+        df_result['Category'] = list(df['Category'])
+        df_result['Answers'] = Answers
+        return df_result, df_feature_to_storage, [(i + 1) for i in list(df_unlabled['Index'])]
+
 class Person(SubFunctions):
     def __init__(self, file_raw_data, tab, number_rows_of_own_one_test ):
         SubFunctions.__init__(self)
@@ -51,6 +85,7 @@ class Person(SubFunctions):
         else:
             print('Errors:')
             pprint(errors)
+
 
 class Subject(SubFunctions):
     def __init__(self, file_preprocessed_data, file_raw_data_student, file_raw_data_teacher,
@@ -208,39 +243,7 @@ class EnglishTeacher(Teacher):
         self.WriteDataFrimeToSQLDatabase(df_feature_to_storage, 'FeatureToStore')
         return df_result
 
-    def ConvertDictionaryToDataFrameToStore(self, dict, Answers, k_neighbors, length_feature):
-        df = ConvertADictionaryToDataFrame(dict)
-        # Get Trainning Data and their lables from Database
-        df_trainning = self.ReadDataFrameFromMySQL('TrainningData')
-        df_trainning['Feature'] = df_trainning['Feature'].apply(ast.literal_eval)
-        data_trainning = np.array(
-            [UniformFeature(feature, length_feature) for feature in list(df_trainning['Feature'])])
-        lables = list(df_trainning['Lable'])
-        # PreCategorize test and built feature to storage
-        df = FirtsStepCategozineBySeaching(df)
-        df = df.reset_index().drop(['index'], axis=1)
-        df['Index'] = list(df.index)
-        df_unlabled = df[df['Category'] == '0']
-        feature_to_storage = [ExtractFeaturesFromOptions(option) for option in list(df_unlabled['options'])]
-        df_feature_to_storage = pd.DataFrame()
-        df_feature_to_storage['Index'] = df_unlabled['Index']
-        df_feature_to_storage['Feature'] = pd.Series(feature_to_storage, name='Feature',
-                                                     index=df_feature_to_storage.index)
-        df_feature_to_storage['Feature'] = df_feature_to_storage['Feature'].apply(str)
-        data_test = np.array([UniformFeature(feature, length_feature) for feature in feature_to_storage])
-        # Test new data
-        clf = KNeighborsClassifier(n_neighbors=k_neighbors)
-        clf.fit(data_trainning, lables)
-        numerical_lable = clf.predict(data_test)
-        categorical_lable = list(LabelEncoderEnglishCategory.inverse_transform(numerical_lable))
-        for lable, index in zip(categorical_lable, list(df_unlabled.index)):
-            df.loc[index, 'Category'] = lable
-        # Create final dataframe to display
-        df_result = pd.DataFrame()
-        df_result['Index'] = range(1, 51)
-        df_result['Category'] = list(df['Category'])
-        df_result['Answers'] = Answers
-        return df_result, df_feature_to_storage, [(i + 1) for i in list(df_unlabled['Index'])]
+
 
 
 class EnglishStudent(Student, Subject):
@@ -277,8 +280,8 @@ class MathTeacher(Teacher):
                          self.number_rows_of_own_one_test,
                          categories_of_subject= self.categories_of_subject,
                          number_questions_of_subject= self.number_questions_of_subject)
-    def UpdateRawDataForObject(self, list_options, categories):
-        if self.UpdateRawDataForClass(list_options, categories) == 'Status: Anwers form is wrong, you need to repair your anwers':
+    def UpdateRawDataForObject(self, list_options, categories, test_number):
+        if self.UpdateRawDataForClass(list_options, categories, test_number) == 'Status: Anwers form is wrong, you need to repair your anwers':
             return 'Status: Anwers form is wrong, you need to repair your anwers'
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
 
@@ -320,8 +323,8 @@ class PhysicsTeacher(Teacher):
                          self.number_rows_of_own_one_test,
                          categories_of_subject= self.categories_of_subject,
                          number_questions_of_subject= self.number_questions_of_subject)
-    def UpdateRawDataForObject(self, list_options, categories):
-        if self.UpdateRawDataForClass(list_options, categories) == 'Status: Anwers form is wrong, you need to repair your anwers':
+    def UpdateRawDataForObject(self, list_options, categories, test_number):
+        if self.UpdateRawDataForClass(list_options, categories, test_number) == 'Status: Anwers form is wrong, you need to repair your anwers':
             return 'Status: Anwers form is wrong, you need to repair your anwers'
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
 
@@ -362,7 +365,7 @@ class EnglishAdmin(SubFunctions):
     def UpdateDataToDatabase(self, text_answers, text_exam, test_number, complete_confirm):
         Answers = ExtractAnswersFromText(text_answers)
         dict = ConvertATestToDictionary(text_exam, Answers, test_number)
-        df_result, df_feature_to_storage, list_unlabeled_questions = ConvertDictionaryToDataFrameToStore(dict, Answers, 1, 50)
+        df_result, df_feature_to_storage, list_unlabeled_questions = self.ConvertDictionaryToDataFrameToStore(dict, Answers, 1, 50)
         if complete_confirm == 'I have done':
             AddDocumentToColection('DictionariesAllTests', dict)
         return df_result

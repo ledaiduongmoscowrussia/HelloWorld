@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 from Dataset import *
-from datetime import datetime as dt
+from datetime import datetime
 
 
 colors = {'background': '#111111','text': '#7FDBFF'}
@@ -11,7 +11,7 @@ colors = {'background': '#111111','text': '#7FDBFF'}
 layout_home_page = html.Div([
     html.H1(children='WELCOM TO MY PLATFORM',style={'textAlign': 'center', 'color': colors['text']}),
     html.Div([dcc.Dropdown(id='subject_plot', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject')], style = {'width': '20%','display': 'inline-block'}),
-    dcc.DatePickerRange( id='range_date_time', start_date=dt (2017, 5, 3), end_date= dt.now()),
+    dcc.DatePickerRange( id='range_date_time', start_date=datetime (2017, 5, 3), end_date= datetime.now()),
     html.Div([dcc.Link('TEACHER PAGE', href='/page_teacher'),html.Br(),dcc.Link('STUDENT PAGE', href='/page_student')
               ,html.Br(),dcc.Link('LIST TESTS PAGE', href='/page_list_test'), html.Br(), dcc.Link('ADMIN PAGE', href='/page_admin')],
              style = {'width': '10%','float': 'right','display': 'inline-block'}),
@@ -82,4 +82,7 @@ layout_student = html.Div(
             style={'display': 'inline-block', 'float': 'right',}),
     html.Button(id='submit_button_student',type='n-clicks', children='SEND'),
     html.Div(id='status')],style = {'width': '20%','display': 'inline-block', 'float': 'right'})])
+
+
+
 
