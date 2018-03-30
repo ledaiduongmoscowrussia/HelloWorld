@@ -19,6 +19,7 @@ def generate_table(subject, max_rows=10):
     result = [True if len(set(list(df[col]))) == 1 else False for col in df.columns]
     df = df.append(pd.DataFrame([result], columns=df.columns))
     df.insert(loc=0, column='Label', value=['Answers', 'Solution', 'Results'])
+    print(df)
     return html.Table(
         [html.Tr([html.Th(col) for col in df.columns])] +
         [html.Tr([
