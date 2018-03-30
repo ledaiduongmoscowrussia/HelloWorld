@@ -7,7 +7,7 @@ import pandas as pd
 def generate_table(subject, max_rows=10):
     test_number = len(pd.read_gbq("select  * from  CheckScoreTin.{}StudentAnwers order by id "
                               .format(subject),
-                              'artful-journey-197609', dialect='standard'))
+                              'artful-journey-197609', dialect='standard')) -1
     df_solution = pd.read_gbq("select  * from  CheckScoreTin.{}TeacherCategories where id = {} order by id "
                               .format(subject, test_number * 2 - 2),
                               'artful-journey-197609', dialect='standard')
