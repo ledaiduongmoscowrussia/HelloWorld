@@ -5,6 +5,7 @@ from LayoutListTests import *
 from ProcessData import *
 from flask import Flask
 from Dataset import *
+from table_results import layout_table_result
 
 
 
@@ -30,7 +31,6 @@ def display_page(pathname):
     elif pathname == '/page_admin':
         return layout_admin
     elif pathname == '/page_table_results':
-        from table_results import layout_table_result
         return layout_table_result
     else:
         return layout_home_page
