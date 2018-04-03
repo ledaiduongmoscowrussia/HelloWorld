@@ -4,6 +4,7 @@ import dash_html_components as html
 import dash_table_experiments as dt
 from Dataset import *
 from datetime import datetime
+import numpy as np
 
 
 colors = {'background': '#111111','text': '#7FDBFF'}
@@ -48,6 +49,7 @@ layout_table_results = html.Div([dcc.Dropdown(id='subject_to_show_table', option
                                                'qs21', 'qs22', 'qs23', 'qs24', 'qs25', 'qs26', 'qs27', 'qs28', 'qs29', 'qs30',
                                                'qs31', 'qs32', 'qs33', 'qs34', 'qs35', 'qs36', 'qs37', 'qs38', 'qs39', 'qs40',
                                                'qs41', 'qs42', 'qs43', 'qs44', 'qs45', 'qs46', 'qs47', 'qs48', 'qs49', 'qs50'],
+                                     column_widths= np.full([1, 50], 10).tolist()[0],
                                      id='table_result')
                                  ])
 
