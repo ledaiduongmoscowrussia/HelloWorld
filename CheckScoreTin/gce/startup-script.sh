@@ -22,14 +22,25 @@ service google-fluentd restart &
 # [END logging]
 
 
+apt-get update
+apt-get install -yq git build-essential supervisor python3 python3-dev python-pip libffi-dev libssl-dev
+
+
 # Create a pythonapp user. The application will run as this user.
 useradd -m -d /home/pythonapp pythonapp
-##................................ pip from apt is out of date, so make it update itself and 
+##................................ pip from apt is out of date, so make it update itself and
+pip install --upgrade pip virtualenv
+
 export HOME=/root
 rm -r /opt/app
 git config --global credential.helper gcloud.sh
 #................................
 git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
+
+virtualenv -p python3 /opt/env
+/opt/env/pip install -r /opt/app/CheckScoreTin/requirements.txt
+
+
 ##................................ Make sure the pythonapp user owns the application code
 chown -R pythonapp:pythonapp /opt/app
 cat >/etc/supervisor/conf.d/python-app.conf << EOF
