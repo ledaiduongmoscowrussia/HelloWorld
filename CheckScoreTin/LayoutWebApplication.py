@@ -9,7 +9,8 @@ from datetime import datetime
 colors = {'background': '#111111','text': '#7FDBFF'}
 
 layout_home_page = html.Div([
-    html.Div([dcc.Dropdown(id='subject_plot', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject')], style = {'width': '10%'}),
+    html.Div([dcc.Dropdown(id='subject_plot', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject')],
+             style = {'width': '10%'}),
     dcc.DatePickerRange( id='range_date_time', start_date=datetime (2017, 5, 3), end_date= datetime.now()),
     html.Div(id='graphs')])
 
