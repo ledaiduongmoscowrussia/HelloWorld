@@ -71,7 +71,7 @@ def ShowTableResults(subject):
                             'artful-journey-197609', dialect='standard')
     df = pd.concat([df_answer.drop(columns=['id', 'Datetime']), df_solution.drop(columns=['id'])])
 
-    result = [True if len(set(list(df[col]))) == 1 else False for col in df.columns]
+    result = ['True' if len(set(list(df[col]))) == 1 else 'False' for col in df.columns]
     df = df.append(pd.DataFrame([result], columns=df.columns))
     df.insert(loc=0, column='Label', value=['Answers', 'Solution', 'Results'])
     return df.to_dict('records')

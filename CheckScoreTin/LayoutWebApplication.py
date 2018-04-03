@@ -43,7 +43,12 @@ layout_admin = html.Div([
 layout_table_results = html.Div([dcc.Dropdown(id='subject_to_show_table', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
                                  dt.DataTable(
                                      rows=[{}],
-                                     id='table_result'),
+                                     columns= ['Label', 'qs1', 'qs2', 'qs3', 'qs4', 'qs5', 'qs6', 'qs7', 'qs8', 'qs9', 'qs10',
+                                               'qs11', 'qs12', 'qs13', 'qs14', 'qs15', 'qs16', 'qs17', 'qs18', 'qs19', 'qs20',
+                                               'qs21', 'qs22', 'qs23', 'qs24', 'qs25', 'qs26', 'qs27', 'qs28', 'qs29', 'qs30',
+                                               'qs31', 'qs32', 'qs33', 'qs34', 'qs35', 'qs36', 'qs37', 'qs38', 'qs39', 'qs40',
+                                               'qs41', 'qs42', 'qs43', 'qs44', 'qs45', 'qs46', 'qs47', 'qs48', 'qs49', 'qs50'],
+                                     id='table_result')
                                  ])
 
 layout_teacher = html.Div([
