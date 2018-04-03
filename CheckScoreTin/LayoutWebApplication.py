@@ -40,6 +40,12 @@ layout_admin = html.Div([
     html.Div(id='status_admin')
     ])
 
+layout_table_results = html.Div([dcc.Dropdown(id='subject_to_show_table', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
+                                 dt.DataTable(
+                                     rows=[{}],
+                                     id='table_result'),
+                                 ])
+
 layout_teacher = html.Div([
     html.Div([dcc.Link('HOME', href='/'),html.Br(),dcc.Link('LIST TESTS PAGE', href='/page_list_test'),html.Br(), dcc.Dropdown(id='subject_teacher', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
               html.Div(id='state_teacher'), dcc.Input(id='test_number_teacher', type= 'number', placeholder = 'Enter test number')],

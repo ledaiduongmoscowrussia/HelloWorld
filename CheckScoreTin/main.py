@@ -5,7 +5,6 @@ from LayoutListTests import *
 from ProcessData import *
 from flask import Flask
 from Dataset import *
-from table_results import layout_table_result
 
 
 
@@ -31,7 +30,7 @@ def display_page(pathname):
     elif pathname == '/page_admin':
         return layout_admin
     elif pathname == '/page_table_results':
-        return layout_table_result
+        return layout_table_results
     else:
         return layout_home_page
 # You could also return a 404 "URL not found" page here
@@ -56,9 +55,26 @@ def UpdateDataToDatabase(n_clicks, test_number, complete_confirm, text_exam, tex
     if n_clicks != None:
         obj = GetAdminObject(subject)
         df_result = obj.UpdateDataToDatabase(text_answers, text_exam, test_number, complete_confirm)
-        print(df_result)
     return df_result.to_dict('records')
+# //////////////////////////////////////////////////////////////////CallBack for table results page//////////////////////////////////////////////////////////////////////
+# Give user the his or her state to fill number of next test
+@app.callback(Output('table_result', 'rows'),[Input('subject_to_show_table', 'value')])
+def ShowTableResults(subject):
+    test_number = len(pd.read_gbq("select  * from  CheckScoreTin.{}StudentAnwers order by id "
+                                  .format(subject),
+                                  'artful-journey-197609', dialect='standard')) - 1
+    df_solution = pd.read_gbq("select  * from  CheckScoreTin.{}TeacherCategories where id = {} order by id "
+                              .format(subject, test_number * 2 - 2),
+                              'artful-journey-197609', dialect='standard')
+    df_answer = pd.read_gbq("select  * from CheckScoreTin.{}StudentAnwers where id = {} order by id"
+                            .format(subject, test_number - 1),
+                            'artful-journey-197609', dialect='standard')
+    df = pd.concat([df_answer.drop(columns=['id', 'Datetime']), df_solution.drop(columns=['id'])])
 
+    result = [True if len(set(list(df[col]))) == 1 else False for col in df.columns]
+    df = df.append(pd.DataFrame([result], columns=df.columns))
+    df.insert(loc=0, column='Label', value=['Answers', 'Solution', 'Results'])
+    return df.to_dict('records')
 # /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
 @app.callback(Output('graphs','children'),[Input('subject_plot', 'value'),
                                            Input('range_date_time', 'start_date'),

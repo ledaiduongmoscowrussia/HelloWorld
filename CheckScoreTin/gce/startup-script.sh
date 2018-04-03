@@ -23,7 +23,7 @@ service google-fluentd restart &
 
 
 apt-get update
-apt-get install -yq git build-essential supervisor python3 python3-dev python-pip libffi-dev libssl-dev
+apt-get install -yq git build-essential supervisor python python-dev python3 python3-dev python-pip libffi-dev libssl-dev
 
 
 # Create a pythonapp user. The application will run as this user.
@@ -38,7 +38,8 @@ git config --global credential.helper gcloud.sh
 git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/app
 
 virtualenv -p python3 /opt/env
-/opt/env/pip install -r /opt/app/CheckScoreTin/requirements.txt
+/opt/env/bin/pip install -r /opt/app/CheckScoreTin/requirements.txt
+/opt/env/bin/python3   -m nltk.downloader -d /home/pythonapp/nltk_data all
 
 
 ##................................ Make sure the pythonapp user owns the application code
