@@ -73,10 +73,10 @@ def ShowTableResults(subject):
                             .format(subject, test_number - 1),
                             'artful-journey-197609', dialect='standard')
     df = pd.concat([df_answer.drop(columns=['id', 'Datetime']), df_solution.drop(columns=['id'])])
+    print(df)
 
     result = ['True' if len(set(list(df[col]))) == 1 else 'False' for col in df.columns]
     df = df.append(pd.DataFrame([result], columns=df.columns))
-    print(df)
     df.insert(loc=0, column='Label', value=['Answers', 'Solution', 'Results'])
     return df.to_dict('records')
 # /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
