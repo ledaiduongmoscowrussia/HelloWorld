@@ -169,7 +169,7 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
         'title': 'Relative Barmode'
     }
     #######################################
-    number_test_to_process = np.max([len(df_answer), len(df_solution)])
+    number_test_to_process = np.min([len(df_answer), len(df_solution)])
     number_question = len(df_answer.columns)
     df_answer = df_answer.loc[0:number_test_to_process]
     df_solution = df_solution.loc[0:number_test_to_process]
