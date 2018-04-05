@@ -83,10 +83,10 @@ def ShowTableResults(subject):
                                            Input('range_date_time', 'start_date'),
                                            Input('range_date_time', 'end_date')])
 def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
-	# Get object for callback 
-	obj = GetTeacherObject(tab)
-	categories_to_caculate = obj.categories_of_subject
-	####################################
+    # Get object for callback 
+    obj = GetTeacherObject(tab)
+    categories_to_caculate = obj.categories_of_subject
+    ####################################
     day_before = str("'" + str(start_date) + "'")
     day_after = str("'" + str(end_date) + "'")
     ####################################
