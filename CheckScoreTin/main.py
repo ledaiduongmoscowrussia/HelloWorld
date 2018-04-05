@@ -83,6 +83,10 @@ def ShowTableResults(subject):
                                            Input('range_date_time', 'start_date'),
                                            Input('range_date_time', 'end_date')])
 def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
+	# Get object for callback 
+	obj = GetTeacherObject(tab)
+	categories_to_caculate = obj.categories_of_subject
+	####################################
     day_before = str("'" + str(start_date) + "'")
     day_after = str("'" + str(end_date) + "'")
     ####################################
@@ -108,7 +112,7 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
     df_categories = df_categories.drop(columns=['id'])
     #####################################
     data_raw1 = sorted(
-        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), EnglishCategory)) if
+        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), categories_to_caculate)) if
          i != None], key=lambda x: x[1], reverse=True)
     trace1 = {
         'x': [x[0] for x in data_raw1],
@@ -137,7 +141,7 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
     }
     #######################################
     data_raw2 = sorted(
-        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), EnglishCategory)) if
+        [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), categories_to_caculate)) if
          i != None], key=lambda x: x[1], reverse=True)
     trace4 = {
         'x': [x[0] for x in data_raw2],
