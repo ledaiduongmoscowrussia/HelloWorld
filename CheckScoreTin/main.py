@@ -76,6 +76,7 @@ def ShowTableResults(subject):
 
     result = ['True' if len(set(list(df[col]))) == 1 else 'False' for col in df.columns]
     df = df.append(pd.DataFrame([result], columns=df.columns))
+    print(df)
     df.insert(loc=0, column='Label', value=['Answers', 'Solution', 'Results'])
     return df.to_dict('records')
 # /////////////////////////////////////////////////////////////////CallBack for home page/////////////////////////////////////////////////////////////////////////
