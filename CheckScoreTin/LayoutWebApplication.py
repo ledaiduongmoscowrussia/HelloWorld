@@ -20,7 +20,7 @@ layout_home_page = html.Div([
     html.Div(id='graphs')])
 
 layout_admin = html.Div([
-    html.Div([dcc.Link('HOME', href='/'),html.Br(), dcc.Dropdown(id='subject_admin', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
+    html.Div([ dcc.Dropdown(id='subject_admin', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
               html.Div(id='state_admin'), dcc.Input(id='test_number_admin', type= 'number', placeholder = 'Enter test number')],
              style = {'width': '20%','display': 'inline-block'}),
     dcc.Input(
@@ -53,12 +53,12 @@ layout_table_results = html.Div([dcc.Dropdown(id='subject_to_show_table', option
                                                'qs21', 'qs22', 'qs23', 'qs24', 'qs25', 'qs26', 'qs27', 'qs28', 'qs29', 'qs30',
                                                'qs31', 'qs32', 'qs33', 'qs34', 'qs35', 'qs36', 'qs37', 'qs38', 'qs39', 'qs40',
                                                'qs41', 'qs42', 'qs43', 'qs44', 'qs45', 'qs46', 'qs47', 'qs48', 'qs49', 'qs50'],
-                                     column_widths= np.full([1, 50], 10).tolist()[0],
+                                     column_widths= np.full([1, 51], 10).tolist()[0],
                                      id='table_result')
                                  ])
 
 layout_teacher = html.Div([
-    html.Div([dcc.Link('HOME', href='/'),html.Br(),dcc.Link('LIST TESTS PAGE', href='/page_list_test'),html.Br(), dcc.Dropdown(id='subject_teacher', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
+    html.Div([dcc.Link('LIST TESTS PAGE', href='/page_list_test'),html.Br(), dcc.Dropdown(id='subject_teacher', options=[{'label': i, 'value': i} for i in Subjects], value='English', placeholder = 'Select subject'),
               html.Div(id='state_teacher'), dcc.Input(id='test_number_teacher', type= 'number', placeholder = 'Enter test number')],
              style = {'width': '20%','display': 'inline-block'}),
     html.Div([html.Div([dcc.Dropdown(id='algorithm_teacher',options=[{'label':i,'value':i} for i in Algorithm], value='K nearest neighbor')]),
@@ -81,7 +81,7 @@ layout_teacher = html.Div([
     html.Div(id='status_teacher', style = {'display': 'inline-block', 'float': 'right',})])
 
 layout_student = html.Div(
-    [html.Div([dcc.Link('HOME', href='/'),html.Br(),dcc.Link('LIST TESTS PAGE', href='/page_list_test'),html.Br(), dcc.Dropdown(id='subject_student', options=[{'label': i, 'value': i} for i in Subjects], value=None, placeholder = 'Select subject'),
+    [html.Div([dcc.Link('LIST TESTS PAGE', href='/page_list_test'),html.Br(), dcc.Dropdown(id='subject_student', options=[{'label': i, 'value': i} for i in Subjects], value=None, placeholder = 'Select subject'),
                html.Div(id='state_student'), dcc.Input(id='test_number_student', type= 'number', placeholder = 'Enter test number')],style = {'width': '20%','display': 'inline-block'}),
     html.H1('CHOOSE YOUR ANSWERS'),
     # The firts 25 questions here
