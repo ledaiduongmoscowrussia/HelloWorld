@@ -65,7 +65,7 @@ def UpdateDataToDatabase(n_clicks, test_number, complete_confirm, text_exam, tex
 def ShowTableResults(subject):
     test_number = len(pd.read_gbq("select  * from  CheckScoreTin.{}StudentAnwers order by id "
                                   .format(subject),
-                                  'artful-journey-197609', dialect='standard')) - 1
+                                  'artful-journey-197609', dialect='standard'))
     df_solution = pd.read_gbq("select  * from  CheckScoreTin.{}TeacherCategories where id = {} order by id "
                               .format(subject, test_number * 2 - 2),
                               'artful-journey-197609', dialect='standard')

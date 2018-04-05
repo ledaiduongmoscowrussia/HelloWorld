@@ -33,7 +33,7 @@ git clone https://source.developers.google.com/p/$PROJECTID/r/HelloWorld /opt/ap
 
 if [ -d "/opt/env" ]; 
 then 
-	rm -r   /home/pythonapp ;
+#	rm -r   /home/pythonapp ;
 	rm  /etc/supervisor/conf.d/python-app.conf;
 else 
 	virtualenv -p python3 /opt/env;
