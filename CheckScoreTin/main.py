@@ -5,6 +5,9 @@ from LayoutListTests import *
 from ProcessData import *
 from flask import Flask
 from Dataset import *
+from itertools import *
+from functools import *
+from operator import *
 
 
 
@@ -163,15 +166,15 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
     }
     #######################################
     number_test_to_process = np.max([len(df_answer), len(df_solution)])
-	number_question = len(df_answer.columns)
-	df_answer = df_answer.loc[0:number_test_to_process]
-	df_solution = df_solution.loc[0:number_test_to_process]
-	def ProcessOneTest(list_answers, list_solutions):
-    	score = 10 * reduce(add, map(eq, list_answers, list_solutions))/ number_question
-    	effecency = score/(sum([1 for i in list_answers if i in ['A', 'B', 'C', 'D']])/ number_question)
-    	return score, effecency
-	list_score = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[0] for i in range(number_test_to_process)]
-	list_effecency = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[1] for i in range(number_test_to_process)]
+    number_question = len(df_answer.columns)
+    df_answer = df_answer.loc[0:number_test_to_process]
+    df_solution = df_solution.loc[0:number_test_to_process]
+    def ProcessOneTest(list_answers, list_solutions):
+        score = 10 * reduce(add, map(eq, list_answers, list_solutions))/ number_question
+        effecency = score/(sum([1 for i in list_answers if i in ['A', 'B', 'C', 'D']])/ number_question)
+        return score, effecency
+    list_score = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[0] for i in range(number_test_to_process)]
+    list_effecency = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[1] for i in range(number_test_to_process)]
     data0 = [
             {
                 'x': list_date_time,
@@ -192,7 +195,7 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
                 legend={'x': 1, 'y': 1})
     #######################################
     graphs = [
-    		dcc.Graph(id='g0',figure= {'data': data0, 'layout': layout0 })
+    		dcc.Graph(id='g0',figure= {'data': data0, 'layout': layout0 }),
     		dcc.Graph(id='g1',figure= {'data': data1, 'layout': layout1 }),
             dcc.Graph(id='g2', figure={'data': data2, 'layout': layout2})]
     return graphs
