@@ -36,7 +36,8 @@ layout_admin = html.Div([
         rows=[{}],
         columns= ['Index', 'Category', 'Answers'],
         id='table_admin'),
-        dcc.RadioItems(
+    html.Div(id='physics_categories', children= str(PhysicsCategory)),
+    dcc.RadioItems(
             id='complete_confirm_admin',
             options=[{'label': 'I have done', 'value':'I have done'}, {'label':'I have not done', 'value': 'I have not done' }],
             value= 'I have not done',
