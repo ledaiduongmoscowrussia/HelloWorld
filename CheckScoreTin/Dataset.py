@@ -51,7 +51,7 @@ LabelEncoderEnglishCategory = LabelEncoder()
 LabelEncoderEnglishCategory.fit(EnglishCategory)
 list(LabelEncoderEnglishCategory.classes_)
 list_delimiters_0 = ['Mark the letter', 'Blacken the letter', 'Read the following', 'THE END', 'ĐÁP ÁN', 'HẾT']
-list_delimiters_physics = ['Câu', 'HẾT']
+list_delimiters_physics = ['Câu', 'HẾT', 'end']
 Subjects = ['English', 'Math','Physics']
 Algorithm = ['K nearest neighbor', 'Support vector machine', 'Tree decision']
 Options = ['A', 'B', 'C', 'D']

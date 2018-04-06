@@ -32,6 +32,7 @@ layout_list_test = html.Div([dcc.Link('<-HOME', href='/'),html.Br(),
 
                             html.H1('PHYSICS TESTS:'),
                             dcc.Markdown('''[1](https://static.tuoitre.vn/tto/r/2018/01/24/3-de-vatli-thamkhao-k18-1516765766.pdf)>>>>>>>>>
+                            [2](https://drive.google.com/file/d/1FulqTC_e7Lnb3ELdEgzLXg7PRoEowrQy/view?usp=sharing)>>>>>>>>>
 
 
 
