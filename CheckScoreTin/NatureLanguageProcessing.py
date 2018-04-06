@@ -60,7 +60,6 @@ def ConvertATestToDictionary(text_exam, Answers, test_number):
 def FillHeader2(question, number_question):
     if DeleteListCharacterFromString(question['header2'], [' ']) == '':
         list_indexs = list(map(lambda x: x.find('('+str(number_question)+')'), question['header11']))
-        print(list_indexs, number_question)
         index_header2 = list_indexs.index(list(filter(lambda x: x != -1, list_indexs))[0])
         question['header2'] = question['header11'][index_header2]
         return True

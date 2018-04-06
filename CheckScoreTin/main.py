@@ -114,12 +114,15 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
     number_test_to_process = np.min([len(df_answer), len(df_solution)])
     number_question = len(df_answer.columns)
     df_answer = df_answer.loc[0:number_test_to_process - 1]
-    print(df_answer)
+    print('df_answers:', df_answer)
+    print(number_test_to_process, number_question)
     df_solution = df_solution.loc[0:number_test_to_process -1]
-    print(df_solution)
+    print('df_solutions:', df_solution)
     def ProcessOneTest(list_answers, list_solutions):
         score = 10 * reduce(add, map(eq, list_answers, list_solutions))/ number_question
+        print('score:' , score)
         effecency = score/(sum([1 for i in list_answers if i in ['A', 'B', 'C', 'D']])/ number_question)
+        print('under:',(sum([1 for i in list_answers if i in ['A', 'B', 'C', 'D']])/ number_question))
         return score, effecency
     list_score = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[0] for i in range(number_test_to_process)]
     list_effecency = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[1] for i in range(number_test_to_process)]
