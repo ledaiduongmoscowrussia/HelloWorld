@@ -110,6 +110,35 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
         .format(tab, test_start, test_end),
         'artful-journey-197609', dialect='standard')
     df_categories = df_categories.drop(columns=['id'])
+    #######################################
+    number_test_to_process = np.min([len(df_answer), len(df_solution)])
+    number_question = len(df_answer.columns)
+    df_answer = df_answer.loc[0:number_test_to_process]
+    df_solution = df_solution.loc[0:number_test_to_process]
+    def ProcessOneTest(list_answers, list_solutions):
+        score = 10 * reduce(add, map(eq, list_answers, list_solutions))/ number_question
+        effecency = score/(sum([1 for i in list_answers if i in ['A', 'B', 'C', 'D']])/ number_question)
+        return score, effecency
+    list_score = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[0] for i in range(number_test_to_process)]
+    list_effecency = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[1] for i in range(number_test_to_process)]
+    data0 = [
+            {
+                'x': list_date_time,
+                'y': list_score,
+                'name': 'Score',
+                'marker': {'color': 'rgb(255, 0, 0)'},
+            },
+            {
+                'x': list_date_time,
+                'y': list_effecency,
+                'name': 'Effecency',
+                'marker': {'color': 'rgb(0, 213, 255)'},
+            }]
+    layout0 = go.Layout(
+                title = 'Predentation of scores and effecencies',
+                yaxis={'range': [0, 10]},
+                margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
+                legend={'x': 1, 'y': 1})
     #####################################
     data_raw1 = sorted(
         [i for i in list(map(partial(Caculation, df_answer, df_solution, df_categories), categories_to_caculate)) if
@@ -168,35 +197,6 @@ def UpdateDataAndPlotGraphSecond(tab, start_date, end_date):
         'barmode': 'relative',
         'title': 'Relative Barmode'
     }
-    #######################################
-    number_test_to_process = np.min([len(df_answer), len(df_solution)])
-    number_question = len(df_answer.columns)
-    df_answer = df_answer.loc[0:number_test_to_process]
-    df_solution = df_solution.loc[0:number_test_to_process]
-    def ProcessOneTest(list_answers, list_solutions):
-        score = 10 * reduce(add, map(eq, list_answers, list_solutions))/ number_question
-        effecency = score/(sum([1 for i in list_answers if i in ['A', 'B', 'C', 'D']])/ number_question)
-        return score, effecency
-    list_score = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[0] for i in range(number_test_to_process)]
-    list_effecency = [ProcessOneTest(df_answer.loc[i], df_solution.loc[i])[1] for i in range(number_test_to_process)]
-    data0 = [
-            {
-                'x': list_date_time,
-                'y': list_score,
-                'name': 'Score',
-                'marker': {'color': 'rgb(255, 0, 0)'},
-            },
-            {
-                'x': list_date_time,
-                'y': list_effecency,
-                'name': 'Effecency',
-                'marker': {'color': 'rgb(0, 213, 255)'},
-            }]
-    layout0 = go.Layout(
-                title = 'Predentation of scores and effecencies',
-                yaxis={'range': [0, 10]},
-                margin={'l': 20, 'b': 20, 't': 70, 'r': 20},
-                legend={'x': 1, 'y': 1})
     #######################################
     graphs = [
     		dcc.Graph(id='g0',figure= {'data': data0, 'layout': layout0 }),
