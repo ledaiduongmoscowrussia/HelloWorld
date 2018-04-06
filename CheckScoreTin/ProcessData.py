@@ -63,7 +63,7 @@ class Person(SubFunctions):
 
     def CheckComponentsToGetRawData(self, test_number, complete_confirm):
         df_file_raw_data = self.ReadDataFrameFromMySQL(self.file_raw_data)
-        check_test_number = str(int(len(df_file_raw_data) / self.number_rows_of_own_one_test) + 1) == test_number
+        check_test_number = int(len(df_file_raw_data) / self.number_rows_of_own_one_test) + 1 == test_number
         if check_test_number is False: return 'Status: Test number is wrong, you need to choose your right test number'
         completed = complete_confirm == 'I have done'
         if completed is False: return 'Status: You do not complete your test, click to <I have done> to confirm your completion'
@@ -96,41 +96,6 @@ class Subject(SubFunctions):
         self.number_rows_of_one_test_of_teacher = number_rows_of_one_test_of_teacher
         SubFunctions.__init__(self)
 
-    def CheckAllNewTests(self):
-        df_file_preprocessed_data = self.ReadDataFrameFromMySQL(self.file_preprocessed_data)
-        df_file_raw_data_student = self.ReadDataFrameFromMySQL(self.file_raw_data_student)
-        df_file_raw_data_teacher = self.ReadDataFrameFromMySQL(self.file_raw_data_teacher)
-        number_scaned_tests = len(df_file_preprocessed_data.index)
-        number_student_tests = len(df_file_raw_data_student.index)
-        number_teacher_tests = int(len(df_file_raw_data_teacher.index) / self.number_rows_of_one_test_of_teacher)
-        tests_ready_to_scan = list(range(number_scaned_tests+1, min(number_student_tests, number_teacher_tests) + 1))
-        return tests_ready_to_scan
-
-    def ProcessATest(self, categories, anwrers_correct, list_anwers_user):
-        df = pd.DataFrame()
-        df_result = pd.DataFrame()
-        df['Categories'] = categories
-        df['AnwersCorrect'] = anwrers_correct
-        Datetime = list_anwers_user.pop(0)
-        df['AnwersUser'] = list_anwers_user
-        df['Score'] = np.where(df.AnwersUser == df.AnwersCorrect, 1, 0)
-        df_result['Percentage'] = 100 * df.groupby('Categories').sum()['Score'] / df.groupby('Categories').count()['Score']
-        score = 10 * df['Score'].sum() / df['Score'].count()
-        filling_up = 10 * len([answer for answer in list_anwers_user if answer != None])/df['Score'].count()
-        effectioncy = 10 * score / filling_up
-        return [df_result,Datetime, score, effectioncy, filling_up]
-
-    def UpdateATest(self, test_oder):
-        categories = list(self.ReadDataFrameFromMySQL(self.file_raw_data_teacher).loc[test_oder * self.number_rows_of_one_test_of_teacher - 1, :])
-        anwrers_correct = list(self.ReadDataFrameFromMySQL(self.file_raw_data_teacher).loc[test_oder * self.number_rows_of_one_test_of_teacher - self.number_rows_of_one_test_of_teacher, :])
-        list_anwers_user = list(self.ReadDataFrameFromMySQL(self.file_raw_data_student).loc[test_oder - 1, :])
-        [df_type, Datetime, score, effectioncy, filling_up] = self.ProcessATest(categories, anwrers_correct, list_anwers_user)
-        df_score = pd.DataFrame(data=[[score]], index=['Score'], columns=['Percentage'])
-        df_effectioncy = pd.DataFrame(data=[[effectioncy]], index=['Effectioncy'], columns=['Percentage'])
-        df_filling_up = pd.DataFrame(data=[[filling_up]], index=['Filling_up'], columns=['Percentage'])
-        df_date_time = pd.DataFrame(data=[[Datetime]], index=['Datetime'], columns=['Percentage'])
-        df_result = pd.concat([df_date_time, df_score, df_effectioncy, df_filling_up, df_type], axis=0)
-        self.AddSeriesToRowOfDataFrameByName(self.file_preprocessed_data, df_result['Percentage'])
 
 class Teacher(Person):
     def __init__(self, file_raw_data, tab, number_rows_of_own_one_test, categories_of_subject, number_questions_of_subject):
@@ -162,43 +127,6 @@ class Student(Person):
         list_options = [datetime.now()] + list_options
         self.StreamData('CheckScoreTin', self.file_raw_data, [[test_number] + list_options])
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
-    def GetDataForGraphForClass(self, file_preprocessed_data):
-        df = self.ReadDataFrameFromMySQL(file_preprocessed_data)
-        data = [
-            {
-                'x': df['Datetime'],
-                'y': df['Score'],
-                'name': 'Score',
-                'marker': {'color': 'rgb(255, 0, 0)'},
-            },
-            {
-                'x': df['Datetime'],
-                'y': df['Filling_up'],
-                'name': 'Filling_up',
-                'marker': {'color': 'rgb(0, 0, 0)'},
-            },
-            {
-                'x': df['Datetime'],
-                'y': df['Effectioncy'],
-                'name': 'Effectioncy',
-                'marker': {'color': 'rgb(0, 213, 255)'},
-            }]
-        return data
-
-    def GetDataForGraphForClassSecond(self, file_preprocessed_data, categories):
-        df = self.ReadDataFrameFromMySQL(file_preprocessed_data)
-        def EsarerToSee (x):
-            if x == 0: return 2.222222222
-            else:return x
-        data = [
-            {
-                'x': list(range(1, df['Datetime'].count() + 1)),
-                'y': [EsarerToSee(x) for x in list(df[category])],
-                'name': category,
-                'type': 'bar',
-                'marker': { 'color': 'rgb(0,213,255)'}
-            }for category in categories]
-        return [[data_i] for data_i in data]
 
 class EnglishTeacher(Teacher):
     def __init__(self):
@@ -262,11 +190,6 @@ class EnglishStudent(Student, Subject):
                          file_raw_data_student= self.file_raw_data_student,
                          file_raw_data_teacher= self.file_raw_data_teacher,
                          number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 class MathTeacher(Teacher):
     def __init__(self):
@@ -305,11 +228,6 @@ class MathStudent(Student, Subject):
                          file_raw_data_student= self.file_raw_data_student,
                          file_raw_data_teacher= self.file_raw_data_teacher,
                          number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 class PhysicsTeacher(Teacher):
     def __init__(self):
@@ -348,11 +266,6 @@ class PhysicsStudent(Student, Subject):
                          file_raw_data_student= self.file_raw_data_student,
                          file_raw_data_teacher= self.file_raw_data_teacher,
                          number_rows_of_one_test_of_teacher= self.number_rows_of_one_test_of_teacher)
-    def UpdateAllTest(self):
-        tests_ready_to_scan = self.CheckAllNewTests()
-        if len(tests_ready_to_scan) > 0:
-            for test in tests_ready_to_scan:
-                self.UpdateATest(test)
 
 
 
