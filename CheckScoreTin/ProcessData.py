@@ -69,6 +69,7 @@ class Person(SubFunctions):
         if check_test_number is False: return 'Status: Test number is wrong, you need to choose your right test number'
         completed = complete_confirm == 'I have done'
         if completed is False: return 'Status: You do not complete your test, click to <I have done> to confirm your completion'
+
     def GetNumberOfDoneTests(self, file):
         df = pd.read_gbq('select * from CheckScoreTin.' + file + ' order by id',
                          project_id='artful-journey-197609')
@@ -104,6 +105,7 @@ class Teacher(Person):
         self.categories_of_subject = categories_of_subject
         self.number_questions_of_subject = number_questions_of_subject
         Person.__init__(self,file_raw_data= file_raw_data, tab= tab, number_rows_of_own_one_test = number_rows_of_own_one_test)
+
     def UpdateRawDataForClass(self, Answers, Categories, test_number):
         Answers = Answers[0:self.number_questions_of_subject]
         Categories = Categories[0:self.number_questions_of_subject]
@@ -127,7 +129,7 @@ class Student(Person):
                     return 'Status: You need to click round button in top left conner to reload webpage'
         list_options = list_options[0: self.number_questions_of_subject]
         list_options = [datetime.now()] + list_options
-        self.StreamData('CheckScoreTin', self.file_raw_data, [[test_number] + list_options])
+        self.StreamData('CheckScoreTin', self.file_raw_data, [[test_number -1] + list_options])
         return 'Status: Your test is sent successfully, if you want to do next test you must click round button in top left conner to reload webpage'
 
 class EnglishTeacher(Teacher):
