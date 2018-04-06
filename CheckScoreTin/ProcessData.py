@@ -63,6 +63,8 @@ class Person(SubFunctions):
 
     def CheckComponentsToGetRawData(self, test_number, complete_confirm):
         df_file_raw_data = self.ReadDataFrameFromMySQL(self.file_raw_data)
+        print(type(test_number), test_number)
+        print(type(int(len(df_file_raw_data) / self.number_rows_of_own_one_test) + 1), int(len(df_file_raw_data) / self.number_rows_of_own_one_test) + 1)
         check_test_number = int(len(df_file_raw_data) / self.number_rows_of_own_one_test) + 1 == test_number
         if check_test_number is False: return 'Status: Test number is wrong, you need to choose your right test number'
         completed = complete_confirm == 'I have done'
