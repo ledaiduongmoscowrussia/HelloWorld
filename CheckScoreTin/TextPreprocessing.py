@@ -84,6 +84,17 @@ def ConvertADictionaryToDataFrame(dict_a_test):
     df = pd.DataFrame(list_all_questions, index=index_data_frame)
     return df
 
-def ExtractAnswersFromText(Text):
-    options = [x for x in Text if x in ['A', 'B', 'C', 'D']]
-    return options
+# def ExtractAnswersFromText(Text):
+#     options = [x for x in Text if x in ['A', 'B', 'C', 'D']]
+#     return options
+
+def ExtractAnswersFromText(text):
+    text = text.replace('\n', '')
+    text_splited = text.split(sep = ' ')
+    Options = list(filter(lambda x: x in ['A', 'B', 'C', 'D'], text_splited))
+    Numbers = list(filter(lambda x: x not in ['A', 'B', 'C', 'D'], text_splited))
+    Combo = list(zip([int(k) for k in Numbers], Options))
+    result = [ element[1] for element in sorted(Combo, key = lambda x: x[0]) ]
+    return result
+
+
