@@ -36,8 +36,8 @@ PhysicsIndicatorsDict = {'Mechanical_oscillation': ['ao động điều', 'ao đ
                         'Oscillation_and_electromagnetic_waves': ['sóng vô tuyến', 'óng điện từ'],
                         'Magnetic_field_Electromagnetic': ['điện tích', 'từ trường', 'uất điện động', 'khung dây phẳng'],
                         'Light_waves': ['ánh sáng', 'iao thoa', 'quang phổ'],
-                         'Geometrical_optics': ['thấu kính'],
-                         'Quantum_of_light':['giới hạn quang dẫn', 'ăng lượng kích hoạt', 'giải phóng một êlectron', 'tia X'],
+                        'Quantum_of_light':['giới hạn quang dẫn', 'ăng lượng kích hoạt', 'giải phóng một êlectron', 'tia X'],
+                        'Geometrical_optics': ['thấu kính'],
                         'Atomic_nucleus': ['hạt nhân', 'nhiệt hạch', 'nguyên tử']}
 PhysicsIndicatorsList = list(PhysicsIndicatorsDict.values())
 Categories = {'English': EnglishCategory,
