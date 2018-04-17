@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 from Dataset import *
-from datetime import datetime
+import datetime
 import numpy as np
 
 
@@ -15,8 +15,9 @@ layout_home_page = html.Div([
     dcc.DatePickerRange( 
         id='range_date_time', 
         display_format='MMM Do, YY', 
-        start_date=datetime (2018, 1, 1),
-        end_date= datetime.now()),
+        start_date=datetime.datetime (2018, 1, 1),
+        end_date=datetime.datetime.now()+datetime.timedelta(days = 1)
+),
     html.Div(id='graphs')])
 
 layout_admin = html.Div([
